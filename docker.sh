@@ -13,21 +13,17 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin git vim curl  -y
+sleep 2
+echo "Calling Docker Image"
+sleep 2
 
-docker build -t wyz .
-docker container rm wyz --force &
+docker build -t wyzz .
+docker container rm wyzz --force &
 sleep 3
-docker run -d --restart=unless-stopped --name wyz wyz
+docker run -d --restart=unless-stopped --name wyzz wyzz
 
 sleep 2
-echo "Error 6783976546789098765"
+echo "Deployed Running....."
+
 sleep 5 
-echo "Kidding BC , Install ho gya BOT Check kro"
-echo "================"
-echo "useful commands (Example:xx is docker)"
-echo "show active dockers= docker container ls"
-echo "show logs on xx: docker logs xx -f"
-echo "restart docker: docker restart xx"
-echo "DELETE: docker container rm xx -ff"
-echo "---------------------"
-echo "Ab bi nahi chala to telegram ki maa chood do sale ki bsdkwala" 
+echo "Bot is Started ✅"
