@@ -39,8 +39,8 @@ GIT_TOKEN = getenv(
     "GIT_TOKEN", None
 )  # Fill this variable if your upstream repository is private
 
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://music.amazon.com/")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://music.amazon.com/")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/Mahadev_Update")
+SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/Mahadev_Update")
 
 # Set this to True if you want the assistant to automatically leave chats after an interval
 AUTO_LEAVING_ASSISTANT = bool(getenv("AUTO_LEAVING_ASSISTANT", True))
@@ -80,21 +80,21 @@ confirmer = {}
 
 
 START_IMG_URL = getenv(
-    "START_IMG_URL", "https://envs.sh/gAT.jpg"
+    "START_IMG_URL", "https://files.catbox.moe/7ywsif.jpg"
 )
 PING_IMG_URL = getenv(
-    "PING_IMG_URL", "https://envs.sh/gAT.jpg"
+    "PING_IMG_URL", "https://files.catbox.moe/7ywsif.jpg"
 )
-PLAYLIST_IMG_URL = "https://envs.sh/gAT.jpg"
-STATS_IMG_URL = "https://envs.sh/gAT.jpg"
-TELEGRAM_AUDIO_URL = "https://envs.sh/gAT.jpg"
-TELEGRAM_VIDEO_URL = "https://envs.sh/gAT.jpg"
-STREAM_IMG_URL = "https://envs.sh/gAT.jpg"
-SOUNCLOUD_IMG_URL = "https://envs.sh/gAT.jpg"
-YOUTUBE_IMG_URL = "https://envs.sh/gAT.jpg"
-SPOTIFY_ARTIST_IMG_URL = "https://envs.sh/gAT.jpg"
-SPOTIFY_ALBUM_IMG_URL = "https://envs.sh/ovA.jpeg"
-SPOTIFY_PLAYLIST_IMG_URL = "https://envs.sh/gAT.jpg"
+PLAYLIST_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+STATS_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+TELEGRAM_AUDIO_URL = "https://files.catbox.moe/7ywsif.jpg"
+TELEGRAM_VIDEO_URL = "https://files.catbox.moe/7ywsif.jpg"
+STREAM_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+SOUNCLOUD_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+YOUTUBE_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+SPOTIFY_ARTIST_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+SPOTIFY_ALBUM_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
+SPOTIFY_PLAYLIST_IMG_URL = "https://files.catbox.moe/7ywsif.jpg"
 
 
 def time_to_seconds(time):
