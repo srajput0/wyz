@@ -282,6 +282,44 @@ class Call(PyTgCalls):
         await asyncio.sleep(0.2)
         await assistant.leave_call(config.LOGGER_ID)
 
+        
+
+    async def update_beats(self, chat_id, message, start_time):
+        """Handle real-time beat pattern updates"""
+        try:
+            while True:
+                try:
+                    # Update every 100ms
+                    await asyncio.sleep(0.1)
+                    
+                    # Calculate current play time
+                    current_time = time.time()
+                    elapsed = current_time - start_time
+                    played = time.strftime('%M:%S', time.gmtime(elapsed))
+                    
+                    # Get current playing info
+                    check = db.get(chat_id)
+                    if not check:
+                        return
+                    
+                    duration = check[0]["dur"]
+                    
+                    # Generate new markup with updated beats
+                    buttons = stream_markup_timer(_, chat_id, played, duration)
+                    
+                    # Update message
+                    await message.edit_reply_markup(
+                        reply_markup=InlineKeyboardMarkup(buttons)
+                    )
+                    
+                except Exception as e:
+                    LOGGER(__name__).error(f"Beat update error: {str(e)}")
+                    await asyncio.sleep(1)
+                    
+        except Exception as e:
+            LOGGER(__name__).error(f"Beat animation loop error: {str(e)}")
+
+
     async def join_call(
         self,
         chat_id: int,
