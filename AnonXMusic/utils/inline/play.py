@@ -6,11 +6,11 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from AnonXMusic.utils.formatters import time_to_seconds
 
 
-def get_dynamic_beat_pattern(base_patterns, offset=0):
-    """Generate dynamic beat patterns based on current time"""
-    milliseconds = int((time.time() * 1000) % 1000)
-    pattern_index = ((milliseconds // 62) + offset) % len(base_patterns)
-    return base_patterns[pattern_index]
+# def get_dynamic_beat_pattern(base_patterns, offset=0):
+#     """Generate dynamic beat patterns based on current time"""
+#     milliseconds = int((time.time() * 1000) % 1000)
+#     pattern_index = ((milliseconds // 62) + offset) % len(base_patterns)
+#     return base_patterns[pattern_index]
 
 
 
