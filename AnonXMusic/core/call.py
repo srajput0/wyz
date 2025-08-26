@@ -284,41 +284,46 @@ class Call(PyTgCalls):
 
         
 
-    async def update_beats(self, chat_id, message, start_time):
-        """Handle real-time beat pattern updates"""
+    async def _update_animation(self, chat_id, message):
+        """Update animation with error handling"""
         try:
-            while True:
-                try:
-                    # Update every 100ms
-                    await asyncio.sleep(0.1)
+            while chat_id in self.animation_tasks:
+                # Get current playback info
+                if chat_id not in db:
+                    break
                     
-                    # Calculate current play time
-                    current_time = time.time()
-                    elapsed = current_time - start_time
-                    played = time.strftime('%M:%S', time.gmtime(elapsed))
-                    
-                    # Get current playing info
-                    check = db.get(chat_id)
-                    if not check:
-                        return
-                    
-                    duration = check[0]["dur"]
-                    
-                    # Generate new markup with updated beats
-                    buttons = stream_markup_timer(_, chat_id, played, duration)
-                    
-                    # Update message
-                    await message.edit_reply_markup(
-                        reply_markup=InlineKeyboardMarkup(buttons)
-                    )
-                    
-                except Exception as e:
-                    LOGGER(__name__).error(f"Beat update error: {str(e)}")
-                    await asyncio.sleep(1)
-                    
+                current = db[chat_id][0]
+                played = current.get("played", "0:00")
+                duration = current.get("dur", "0:00")
+                
+                # Update markup
+                markup = InlineKeyboardMarkup(
+                    stream_markup_timer(_, chat_id, played, duration)
+                )
+                
+                await message.edit_reply_markup(reply_markup=markup)
+                await asyncio.sleep(1)  # Update every second
+                
         except Exception as e:
-            LOGGER(__name__).error(f"Beat animation loop error: {str(e)}")
+            LOGGER(__name__).error(f"Animation error: {str(e)}")
+        finally:
+            if chat_id in self.animation_tasks:
+                del self.animation_tasks[chat_id]
 
+    async def start_animation(self, chat_id, message):
+        """Start animation handling"""
+        # Stop existing animation if any
+        await self.stop_animation(chat_id)
+        
+        # Start new animation
+        task = asyncio.create_task(self._update_animation(chat_id, message))
+        self.animation_tasks[chat_id] = task
+
+    async def stop_animation(self, chat_id):
+        """Stop animation cleanly"""
+        if chat_id in self.animation_tasks:
+            self.animation_tasks[chat_id].cancel()
+            del self.animation_tasks[chat_id]
 
     async def join_call(
         self,
