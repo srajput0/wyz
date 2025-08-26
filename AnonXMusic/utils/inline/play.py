@@ -1,12 +1,9 @@
 import math
-
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
-from pyrogram.types import InlineKeyboardButton
-
-from AnonXMusic.utils.formatters import time_to_seconds
-
 import time
+from datetime import datetime
+from random import choice
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from AnonXMusic.utils.formatters import time_to_seconds
 
 
 def get_dynamic_beat_pattern(base_patterns, offset=0):
@@ -81,45 +78,35 @@ def speed_markup(_, chat_id):
 
 
 
+def get_beat_pattern():
+    """Generate dynamic beat patterns"""
+    patterns = [
+        "ılıılıılıılıılıılı",
+        "ılııłıılııłıılııł",
+        "łııłııłııłııłııł",
+        "ııııłııııłııııłı",
+        "ıłıłıłıłıłıłıłıł",
+        "ııııııłłłłłııııı",
+        "łłłıııłłłıııłłłı",
+        "ıłııłıııłııłıııł",
+        "ılılılılılılılılı",
+        "lılılılılılılılıl"
+    ]
+    return choice(patterns)
+
 def stream_markup_timer(_, chat_id, played, dur):
     played_sec = time_to_seconds(played)
     duration_sec = time_to_seconds(dur)
     percentage = (played_sec / duration_sec) * 100
     anon = math.floor(percentage)
 
-    # More varied beat patterns for rapid animation
-    beat_patterns = [
-        "ılıılıılıılıılıılı",        # Pattern 1
-        "ılııııılııııılııı",         # Pattern 2
-        "łııłııłııłııłııł",         # Pattern 3
-        "ııııłııııłııııłı",         # Pattern 4
-        "ıłıłıłıłıłıłıłıł",         # Pattern 5
-        "ııııııłłłłłııııı",         # Pattern 6
-        "łłłıııłłłıııłłłı",         # Pattern 7
-        "ıłııłıııłııłıııł",         # Pattern 8
-        "ılılılılılılılılı",         # Pattern 9
-        "lılılılılılılılıl",         # Pattern 10
-        "ııłłııłłııłłııłł",         # Pattern 11
-        "łııłııłııłııłııł",         # Pattern 12
-        "ıııłłłıııłłłıııł",         # Pattern 13
-        "łłııııłłııııłłıı",         # Pattern 14
-        "ılılılııııılılılı",         # Pattern 15
-        "lılılııııııılılıl",         # Pattern 16
-    ]
-    
-    # Use milliseconds for faster animation
-    import time
-    milliseconds = int((time.time() * 1000) % 1000)  # Get current milliseconds
-    pattern_index = (milliseconds // 62) % len(beat_patterns)  # Changes roughly every ~62ms
-    beat_animation = beat_patterns[pattern_index]
-    
     # Calculate position for progress bar
     position = math.floor((played_sec / duration_sec) * 10)
     ba = "".join(["━" * position] + ["⚪"] + ["─" * (8 - position)] if position <= 8 else "━━━━━━━━━⚪")
 
-    # Create two beat pattern rows for more dynamic visualization
-    beat_pattern_1 = beat_patterns[(pattern_index + 1) % len(beat_patterns)]
-    beat_pattern_2 = beat_patterns[(pattern_index + 2) % len(beat_patterns)]
+    # Generate 3 different beat patterns for animation
+    current_time = datetime.now().microsecond
+    beats = [get_beat_pattern() for _ in range(3)]
 
     buttons = [
         [
@@ -130,34 +117,26 @@ def stream_markup_timer(_, chat_id, played, dur):
         ],
         [
             InlineKeyboardButton(
-                text=beat_animation,
-                callback_data="GetTimer",
+                text=beats[0],
+                callback_data=f"GetTimer {current_time}",
             )
         ],
         [
             InlineKeyboardButton(
-                text=beat_pattern_1,
-                callback_data="GetTimer",
+                text=beats[1],
+                callback_data=f"GetTimer {current_time}",
             )
         ],
         [
             InlineKeyboardButton(
-                text=beat_pattern_2,
-                callback_data="GetTimer",
+                text=beats[2],
+                callback_data=f"GetTimer {current_time}",
             )
         ],
-        # [
-        #     InlineKeyboardButton(
-        #         text="i speed name",
-        #         callback_data=f"show_speed_markup|{user_id}|{channel}"
-        #     )
-        # ],
         [
             InlineKeyboardButton(text="❚❚ ", callback_data=f"ADMIN Pause|{chat_id}"),
             InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"), 
-            InlineKeyboardButton(
-                text="|►►", callback_data=f"ADMIN Skip|{chat_id}"
-            ),
+            InlineKeyboardButton(text="|►►", callback_data=f"ADMIN Skip|{chat_id}")
         ],
     ]
     return buttons
