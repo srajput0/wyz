@@ -78,21 +78,47 @@ def speed_markup(_, chat_id):
 
 
 
-def get_beat_pattern():
-    """Generate dynamic beat patterns"""
-    patterns = [
-        "ılıılıılıılıılıılı",
-        "ılııłıılııłıılııł",
-        "łııłııłııłııłııł",
-        "ııııłııııłııııłı",
-        "ıłıłıłıłıłıłıłıł",
-        "ııııııłłłłłııııı",
-        "łłłıııłłłıııłłłı",
-        "ıłııłıııłııłıııł",
+def generate_beat_pattern():
+    """Generate dynamic beat patterns with micro-variations"""
+    chars = ["ı", "ł", "ı", "l"]
+    base_patterns = [
+        "".join(choice(chars) for _ in range(randint(15, 20))),  # Random length pattern
+        "ııłłııłłııłłııłł",
+        "łıłıłıłıłıłıłıłı",
         "ılılılılılılılılı",
-        "lılılılılılılılıl"
+        "łııłııłııłııłııł",
+        "ıłıłıłıłıłıłıłıł",
     ]
-    return choice(patterns)
+    
+    # Add dynamic variations
+    pattern = choice(base_patterns)
+    current_ms = datetime.now().microsecond % 1000
+    
+    # Create variations based on microseconds
+    if current_ms < 200:
+        return pattern[::-1]  # Reverse
+    elif current_ms < 400:
+        return pattern[len(pattern)//2:] + pattern[:len(pattern)//2]  # Rotate
+    elif current_ms < 600:
+        return "ı" + pattern[1:] + "ł"  # Change edges
+    elif current_ms < 800:
+        return "".join([c.upper() if i % 2 == 0 else c for i, c in enumerate(pattern)])
+    else:
+        return pattern
+
+def get_dynamic_patterns():
+    """Get multiple dynamic patterns for multi-line display"""
+    patterns = []
+    for _ in range(3):
+        current_micro = datetime.now().microsecond
+        pattern = generate_beat_pattern()
+        # Add micro-variations based on current microsecond
+        if current_micro % 2 == 0:
+            pattern = "❮" + pattern + "❯"
+        else:
+            pattern = "⟨" + pattern + "⟩"
+        patterns.append(pattern)
+    return patterns
 
 def stream_markup_timer(_, chat_id, played, dur):
     played_sec = time_to_seconds(played)
@@ -100,45 +126,49 @@ def stream_markup_timer(_, chat_id, played, dur):
     percentage = (played_sec / duration_sec) * 100
     anon = math.floor(percentage)
 
-    # Calculate position for progress bar
+    # Calculate position for progress bar with smoother animation
     position = math.floor((played_sec / duration_sec) * 10)
-    ba = "".join(["━" * position] + ["⚪"] + ["─" * (8 - position)] if position <= 8 else "━━━━━━━━━⚪")
+    micro_position = (played_sec / duration_sec) * 1000 % 1  # For micro-movements
+    
+    # Enhanced progress bar with micro-movements
+    if micro_position < 0.5:
+        cursor = "⚪"
+    else:
+        cursor = "⭕"
+        
+    ba = "".join(["━" * position] + [cursor] + ["─" * (8 - position)] if position <= 8 else "━━━━━━━━━⚪")
 
-    # Generate 3 different beat patterns for animation
-    current_time = datetime.now().microsecond
-    beats = [get_beat_pattern() for _ in range(3)]
+    # Get dynamic beat patterns
+    beat_patterns = get_dynamic_patterns()
+    
+    # Add timestamp to callback data for unique updates
+    current_time = f"{datetime.now().timestamp()}"
 
     buttons = [
         [
             InlineKeyboardButton(
                 text=f"{played} {ba} {dur}",
-                callback_data="GetTimer",
+                callback_data=f"GetTimer",
             )
-        ],
-        [
-            InlineKeyboardButton(
-                text=beats[0],
-                callback_data=f"GetTimer {current_time}",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text=beats[1],
-                callback_data=f"GetTimer {current_time}",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text=beats[2],
-                callback_data=f"GetTimer {current_time}",
-            )
-        ],
-        [
-            InlineKeyboardButton(text="❚❚ ", callback_data=f"ADMIN Pause|{chat_id}"),
-            InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"), 
-            InlineKeyboardButton(text="|►►", callback_data=f"ADMIN Skip|{chat_id}")
-        ],
+        ]
     ]
+    
+    # Add beat pattern rows with unique callbacks
+    for i, pattern in enumerate(beat_patterns):
+        buttons.append([
+            InlineKeyboardButton(
+                text=pattern,
+                callback_data=f"GetTimer{i}_{current_time}"
+            )
+        ])
+
+    # Control buttons
+    buttons.append([
+        InlineKeyboardButton(text="❚❚ ", callback_data=f"ADMIN Pause|{chat_id}"),
+        InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"),
+        InlineKeyboardButton(text="|►►", callback_data=f"ADMIN Skip|{chat_id}")
+    ])
+
     return buttons
 
 
