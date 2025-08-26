@@ -146,12 +146,12 @@ def stream_markup_timer(_, chat_id, played, dur):
                 callback_data="GetTimer",
             )
         ],
-        [
-            InlineKeyboardButton(
-                text="i speed name",
-                callback_data=f"show_speed_markup|{user_id}|{channel}"
-            )
-        ],
+        # [
+        #     InlineKeyboardButton(
+        #         text="i speed name",
+        #         callback_data=f"show_speed_markup|{user_id}|{channel}"
+        #     )
+        # ],
         [
             InlineKeyboardButton(text="❚❚ ", callback_data=f"ADMIN Pause|{chat_id}"),
             InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"), 
