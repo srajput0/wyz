@@ -125,6 +125,12 @@ def stream_markup_timer(_, chat_id, played, dur):
                 callback_data=f"BeatFrame_{timestamp}",
             )
         ],
+         [
+            InlineKeyboardButton(
+                text="i speed name",
+                callback_data=f"speed_markup|{user_id}|{channel}"
+            )
+        ],
         [
             InlineKeyboardButton(
                 text="❚❚ ", 
