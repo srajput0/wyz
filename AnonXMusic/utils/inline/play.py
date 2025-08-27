@@ -86,25 +86,16 @@ def create_bar(played_sec, duration_sec):
     position = math.floor((played_sec / duration_sec) * 10) if duration_sec > 0 else 0
     return "".join(["━" * position] + ["⚪"] + ["─" * (8 - position)] if position <= 8 else "━━━━━━━━━⚪")
 
-def get_wave_pattern():
-    """Get a random wave pattern"""
-    patterns = [
-        "ᨐᨐᨐᨐᨐᨐᨐᨐ",
-        "▰▱▰▱▰▱▰▱▰▱",
-        "⌊♫⌉⌊♫⌉⌊♫⌉⌊",
-        "⌊⌊♫⌉⌉⌊⌊♫⌉⌉",
-        "◠⎯◡⎯◠⎯◡⎯◠⎯",
-        "⎛⎝⎛⎝⎛⎝⎛⎝⎛",
-        "ᨈᨆᨅᨇᨈᨆᨅᨇᨈ",
-        "ᯤᯤᯤᯤᯤᯤᯤᯤᯤ",
-    ]
-    return choice(patterns)
 
+# Beat Frames
 frames = ["ılıılıılıılı", "liiliiliilii", "ılıılıılıılıI"]
 
 def get_beat_frame():
     """Get current beat frame changing 3 times per second"""
-    return frames[int(time.time() * 3) % len(frames)]  # * 3 for 3 changes per second
+    current_time = time.time()
+    frame_index = int(current_time * 3) % len(frames)
+    return frames[frame_index]
+
 
 def stream_markup_timer(_, chat_id, played, dur):
     played_sec = time_to_seconds(played)
@@ -118,7 +109,7 @@ def stream_markup_timer(_, chat_id, played, dur):
     
     # Get current beat frame (changes 3 times per second)
     current_frame = get_beat_frame()
-
+    
     buttons = [
         [
             InlineKeyboardButton(
@@ -128,8 +119,8 @@ def stream_markup_timer(_, chat_id, played, dur):
         ],
         [
             InlineKeyboardButton(
-                text=current_frame,
-                callback_data=f"BeatFrame_{timestamp}",
+                text=current_frame,  # This should update 3 times per second
+                callback_data=f"BeatFrame_{get_time_stamp()}",
             )
         ],
         [
