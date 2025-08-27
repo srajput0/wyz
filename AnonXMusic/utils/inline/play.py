@@ -107,7 +107,6 @@ def stream_markup_timer(_, chat_id, played, dur):
     # Get timestamp for unique callback
     timestamp = get_time_stamp()
     
-    # Get current beat frame (changes 3 times per second)
     current_frame = get_beat_frame()
     
     buttons = [
