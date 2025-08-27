@@ -87,15 +87,17 @@ def create_bar(played_sec, duration_sec):
     return "".join(["━" * position] + ["⚪"] + ["─" * (8 - position)] if position <= 8 else "━━━━━━━━━⚪")
 
 
+
 # Beat Frames
 frames = ["ılıılıılıılı", "liiliiliilii", "ılıılıılıılıI"]
 
 def get_beat_frame():
-    """Get current beat frame changing 3 times per second"""
-    current_time = time.time()
-    frame_index = int(current_time * 3) % len(frames)
+    """Get current beat frame - exactly 3 changes per second"""
+    # Get milliseconds since epoch
+    ms = int((time.time() * 1000))
+    # Each frame shows for 333ms (1000ms/3 ≈ 333ms for 3 changes per second)
+    frame_index = (ms // 333) % len(frames)
     return frames[frame_index]
-
 
 def stream_markup_timer(_, chat_id, played, dur):
     played_sec = time_to_seconds(played)
@@ -107,8 +109,9 @@ def stream_markup_timer(_, chat_id, played, dur):
     # Get timestamp for unique callback
     timestamp = get_time_stamp()
     
+    # Get current beat frame
     current_frame = get_beat_frame()
-    
+
     buttons = [
         [
             InlineKeyboardButton(
@@ -118,8 +121,8 @@ def stream_markup_timer(_, chat_id, played, dur):
         ],
         [
             InlineKeyboardButton(
-                text=current_frame,  # This should update 3 times per second
-                callback_data=f"BeatFrame_{get_time_stamp()}",
+                text=current_frame,
+                callback_data=f"BeatFrame_{timestamp}",
             )
         ],
         [
