@@ -178,9 +178,9 @@ queue_6 : "<b>🕚 ᴅᴜʀᴀᴛɪᴏɴ :</b> 𝖴𝗇𝗄𝗇𝗈𝗐𝗇 𝖣
 queue_7 : "\n𝖢𝗅𝗂𝖼𝗄 𝖮𝗇 𝖳𝗁𝖾 𝖡𝗎𝗍𝗍𝗈𝗇 𝖡𝖾𝗅𝗈𝗐 𝖳𝗈 𝖦𝖾𝗍 𝖶𝗁𝗈𝗅𝖾 𝖰𝗎𝖾𝗎𝖾𝖽 𝖫𝗂𝗌𝗍 ."
 queue_8 : "<b>{0} 𝖯𝗅𝖺𝗒𝖾𝗋</b>\n\n🎄 <b>𝖲𝗍𝗋𝖾𝖺𝗆𝗂𝗇𝗀 :</b> {1}\n\n🔗 <b>𝖲𝗍𝗋𝖾𝖺𝗆 𝖳𝗒𝗉𝖾 :</b> {2}\n🥀 <b> 𝖱𝖾𝗊𝗎𝖾𝗌𝗍𝖾𝖽 𝖡𝗒 :</b> {3}\n{4}"
 
-stream_1: "<blockquote>⭐ Started Streaming\n\n⭐ Title: <a href={0}>{1}</a>\n⭐ Duration: {2} minutes\n⭐ By: {3}</blockquote>"
+stream_1: "<blockquote expandable>⭐ Started Streaming\n\nTitle: <a href={0}>{1}</a>\nDuration: {2} minutes\nBy: {3}</blockquote>"
 
-stream_2: "<blockquote>⭐ Started Streaming\n\n⭐ Title: <a href={0}>{1}</a>\n⭐ Duration: {2} minutes\n⭐ By: {3}</blockquote>"
+stream_2: "<blockquote expandable>⭐ Started Streaming\n\nTitle: <a href={0}>{1}</a>\nDuration: {2} minutes\nBy: {3}</blockquote>"
 
 
 CLOSE_BUTTON  : "𝐂ᥣⱺ𝗌𝖾"
