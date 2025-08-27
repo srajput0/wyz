@@ -100,6 +100,12 @@ def get_wave_pattern():
     ]
     return choice(patterns)
 
+frames = ["ılıılıılıılı", "liiliiliilii", "ılıılıılıılıI"]
+
+def get_beat_frame():
+    """Get current beat frame changing 3 times per second"""
+    return frames[int(time.time() * 3) % len(frames)]  # * 3 for 3 changes per second
+
 def stream_markup_timer(_, chat_id, played, dur):
     played_sec = time_to_seconds(played)
     duration_sec = time_to_seconds(dur)
@@ -110,10 +116,8 @@ def stream_markup_timer(_, chat_id, played, dur):
     # Get timestamp for unique callback
     timestamp = get_time_stamp()
     
-    # Get wave patterns
-    wave1 = get_wave_pattern()
-    wave2 = get_wave_pattern()
-    wave3 = get_wave_pattern()
+    # Get current beat frame (changes 3 times per second)
+    current_frame = get_beat_frame()
 
     buttons = [
         [
@@ -124,20 +128,8 @@ def stream_markup_timer(_, chat_id, played, dur):
         ],
         [
             InlineKeyboardButton(
-                text=wave1,
-                callback_data=f"WavePattern_{timestamp}_1",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text=wave2,
-                callback_data=f"WavePattern_{timestamp}_2",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text=wave3,
-                callback_data=f"WavePattern_{timestamp}_3",
+                text=current_frame,
+                callback_data=f"BeatFrame_{timestamp}",
             )
         ],
         [
@@ -156,7 +148,6 @@ def stream_markup_timer(_, chat_id, played, dur):
         ],
     ]
     return buttons
-
 
 
 def stream_markup(_, chat_id):
