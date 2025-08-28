@@ -4,6 +4,7 @@ import random
 import math
 import time
 from datetime import datetime
+import colorsys
 
 import aiofiles
 import aiohttp
@@ -36,147 +37,338 @@ def clear(text):
     return title.strip()
 
 
-def create_neon_glow_effect(draw, x, y, width, height, color, intensity=3):
-    """Create a neon glow effect"""
-    for i in range(intensity):
-        alpha = 255 - (i * 60)
-        glow_color = (*color, alpha)
-        offset = i * 2
-        draw.rounded_rectangle(
-            [x - offset, y - offset, x + width + offset, y + height + offset],
-            radius=10 + offset,
-            outline=glow_color,
-            width=2
-        )
-
-
-def create_particle_effect(draw, width, height, time_offset=0):
-    """Create floating particles effect"""
+def create_cyberpunk_grid(draw, width, height, time_offset=0):
+    """Create dynamic cyberpunk grid background"""
     t = time.time() + time_offset
-    particles = []
+    grid_size = 30
     
-    for i in range(50):
-        # Create floating particles
-        x = (50 + i * 25 + math.sin(t + i) * 30) % width
-        y = (100 + i * 15 + math.cos(t + i * 0.7) * 40) % height
-        size = 2 + math.sin(t * 2 + i) * 2
+    # Main grid lines
+    for x in range(0, width, grid_size):
+        alpha = int(20 + math.sin(t * 2 + x/50) * 15)
+        intensity = math.sin(t + x/100) * 0.5 + 0.5
+        color = (0, 255, 255, alpha) if intensity > 0.3 else (255, 0, 255, alpha//2)
         
-        # Particle color with transparency
-        alpha = int(100 + math.sin(t * 3 + i) * 100)
-        colors = [(255, 176, 49, alpha), (255, 49, 49, alpha), (138, 43, 226, alpha), (0, 191, 255, alpha)]
-        color = colors[i % len(colors)]
+        # Animated vertical lines
+        draw.line([(x, 0), (x, height)], fill=color, width=1)
         
-        # Draw particle
-        draw.ellipse([x - size, y - size, x + size, y + size], fill=color)
+        # Add glitch effect randomly
+        if random.random() < 0.1:
+            glitch_y = random.randint(0, height-100)
+            draw.line([(x-2, glitch_y), (x+2, glitch_y+100)], 
+                     fill=(255, 255, 0, 100), width=3)
+    
+    for y in range(0, height, grid_size):
+        alpha = int(15 + math.cos(t * 1.5 + y/60) * 10)
+        intensity = math.cos(t * 0.7 + y/80) * 0.5 + 0.5
+        color = (0, 255, 255, alpha) if intensity > 0.4 else (255, 0, 255, alpha//2)
+        
+        draw.line([(0, y), (width, y)], fill=color, width=1)
 
 
-def create_wave_animation(draw, width, height):
-    """Create animated wave background"""
+def create_neural_network_bg(draw, width, height):
+    """Create animated neural network background"""
     t = time.time()
-    wave_height = 100
+    nodes = []
     
-    for y in range(0, height, 3):
-        wave1 = math.sin((y / 50) + (t * 4)) * 20
-        wave2 = math.cos((y / 80) + (t * 2)) * 15
-        wave3 = math.sin((y / 30) + (t * 6)) * 10
+    # Generate nodes
+    for i in range(25):
+        x = (i * 180 + math.sin(t * 2 + i) * 50) % width
+        y = (i * 95 + math.cos(t * 1.5 + i) * 80) % height
+        size = 3 + math.sin(t * 3 + i) * 2
         
-        total_wave = wave1 + wave2 + wave3
+        # Node colors cycle through neon spectrum
+        hue = (t * 0.3 + i * 0.1) % 1.0
+        rgb = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+        color = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255), 150)
         
-        # Create wave colors
-        color_intensity = int(128 + total_wave * 2)
-        color_intensity = max(0, min(255, color_intensity))
+        nodes.append((x, y, size, color))
         
-        # Multi-colored waves
-        r = int(255 * (0.5 + math.sin(t + y / 100) * 0.3))
-        g = int(176 * (0.5 + math.cos(t + y / 80) * 0.3))
-        b = int(49 * (0.5 + math.sin(t * 2 + y / 60) * 0.3))
-        
-        alpha = int(50 + math.sin(t + y / 40) * 30)
-        
-        # Draw wave lines
-        for x in range(0, width, 5):
-            wave_x = x + total_wave
-            if 0 <= wave_x <= width:
-                draw.point((int(wave_x), y), fill=(r, g, b, alpha))
+        # Draw pulsing node
+        for ring in range(3):
+            ring_size = size + ring * 3
+            alpha = max(0, 150 - ring * 50)
+            ring_color = (*color[:3], alpha)
+            draw.ellipse([x - ring_size, y - ring_size, 
+                         x + ring_size, y + ring_size], fill=ring_color)
+    
+    # Connect nearby nodes with animated lines
+    for i, (x1, y1, _, color1) in enumerate(nodes):
+        for j, (x2, y2, _, color2) in enumerate(nodes[i+1:], i+1):
+            distance = math.sqrt((x2-x1)**2 + (y2-y1)**2)
+            if distance < 200:
+                alpha = max(0, int(100 - distance/2))
+                connection_color = (
+                    (color1[0] + color2[0])//2,
+                    (color1[1] + color2[1])//2,
+                    (color1[2] + color2[2])//2,
+                    alpha
+                )
+                
+                # Animated connection line
+                wave = math.sin(t * 4 + distance/20) * 3
+                mid_x, mid_y = (x1 + x2)//2 + wave, (y1 + y2)//2 + wave
+                
+                draw.line([(x1, y1), (mid_x, mid_y)], fill=connection_color, width=2)
+                draw.line([(mid_x, mid_y), (x2, y2)], fill=connection_color, width=2)
 
 
-def create_sound_visualizer(draw, x, y, width, height, bars=30):
-    """Create advanced sound visualizer"""
+def create_plasma_effect(draw, width, height, time_offset=0):
+    """Create dynamic plasma effect"""
+    t = time.time() + time_offset
+    
+    for y in range(0, height, 4):
+        for x in range(0, width, 4):
+            # Multi-layered plasma calculation
+            plasma1 = math.sin(x/80 + t * 2) * math.cos(y/60 + t * 1.5)
+            plasma2 = math.sin((x + y)/100 + t * 3) * 0.7
+            plasma3 = math.cos(math.sqrt((x-width/2)**2 + (y-height/2)**2)/120 + t * 2.5) * 0.5
+            
+            combined = (plasma1 + plasma2 + plasma3) / 3
+            
+            # Convert to hue
+            hue = (combined + 1) / 2
+            saturation = 0.8 + math.sin(t + x/100) * 0.2
+            brightness = 0.3 + abs(combined) * 0.4
+            
+            rgb = colorsys.hsv_to_rgb(hue, saturation, brightness)
+            color = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255), 60)
+            
+            draw.rectangle([x, y, x+4, y+4], fill=color)
+
+
+def create_holographic_neon_text(draw, text, x, y, font, primary_color=(0, 255, 255)):
+    """Ultra-modern holographic text with multiple neon layers"""
+    t = time.time()
+    
+    # Create multiple offset layers for depth
+    layers = [
+        (-4, -2, (255, 0, 255, 40)),    # Magenta shadow
+        (-3, -1, (255, 100, 0, 60)),    # Orange glow
+        (-2, 0, (0, 255, 255, 80)),     # Cyan base
+        (-1, 1, (255, 255, 0, 100)),    # Yellow highlight
+        (0, 2, (255, 255, 255, 120)),   # White core
+        (1, 1, primary_color + (150,)), # Primary color
+        (2, 0, (100, 255, 255, 80)),    # Light cyan
+        (3, -1, (255, 200, 255, 60))    # Pink edge
+    ]
+    
+    for offset_x, offset_y, color in layers:
+        # Add time-based shimmer and distortion
+        shimmer_x = math.sin(t * 4 + offset_x) * 1.5
+        shimmer_y = math.cos(t * 3 + offset_y) * 1
+        
+        final_x = x + offset_x + shimmer_x
+        final_y = y + offset_y + shimmer_y
+        
+        # Draw text with stroke for better neon effect
+        draw.text((final_x, final_y), text, fill=color, font=font,
+                 stroke_width=2, stroke_fill=(0, 0, 0, 80))
+    
+    # Add outer glow effect
+    for glow in range(5):
+        glow_offset = glow * 2
+        glow_alpha = max(0, 30 - glow * 6)
+        glow_color = (*primary_color[:3], glow_alpha)
+        
+        glow_x = x - glow_offset + math.sin(t * 2) * 2
+        glow_y = y - glow_offset + math.cos(t * 1.5) * 1.5
+        
+        draw.text((glow_x, glow_y), text, fill=glow_color, font=font)
+
+
+def create_morphing_visualizer(draw, x, y, width, height, bars=50):
+    """Advanced morphing audio visualizer with particle trails"""
     t = time.time()
     bar_width = width // bars
     
     for i in range(bars):
-        # Multiple frequency simulation
-        freq1 = math.sin(t * 8 + i * 0.5) * 0.3
-        freq2 = math.cos(t * 12 + i * 0.3) * 0.2
-        freq3 = math.sin(t * 16 + i * 0.8) * 0.15
-        freq4 = math.cos(t * 20 + i * 0.1) * 0.1
+        # Multiple frequency layers for realistic audio simulation
+        bass = math.sin(t * 6 + i * 0.3) * 0.4
+        mid = math.cos(t * 12 + i * 0.5) * 0.3
+        treble = math.sin(t * 24 + i * 0.8) * 0.2
+        sub_bass = math.cos(t * 3 + i * 0.1) * 0.15
         
-        combined = freq1 + freq2 + freq3 + freq4
-        bar_height = int(height * 0.3 + (combined * height * 0.6))
-        bar_height = max(5, min(height - 10, bar_height))
+        # Add morphing effect
+        morph = math.sin(t * 2 + i * 0.2) * 0.1
+        
+        combined = bass + mid + treble + sub_bass + morph
+        bar_height = int(height * 0.2 + abs(combined) * height * 0.7)
+        bar_height = max(8, min(height - 5, bar_height))
         
         bar_x = x + i * bar_width
         bar_y = y + height - bar_height
         
-        # Gradient colors for bars
-        hue = (i / bars + t * 0.5) % 1.0
-        if hue < 0.33:
-            color = (255, int(176 + hue * 79), 49)
-        elif hue < 0.66:
-            color = (255, 49, int(49 + (hue - 0.33) * 157))
-        else:
-            color = (int(138 + (hue - 0.66) * 117), 43, 226)
+        # Dynamic color cycling
+        hue = (i / bars * 2 + t * 0.8) % 1.0
+        rgb = colorsys.hsv_to_rgb(hue, 0.9, 1.0)
+        base_color = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))
         
-        # Draw bar with glow
-        draw.rectangle([bar_x, bar_y, bar_x + bar_width - 2, y + height], fill=color)
+        # Create gradient bar
+        for h in range(bar_height):
+            gradient_factor = h / bar_height
+            intensity = 1.0 - gradient_factor * 0.5
+            
+            color = (
+                int(base_color[0] * intensity),
+                int(base_color[1] * intensity),
+                int(base_color[2] * intensity)
+            )
+            
+            draw.line([(bar_x + 1, bar_y + h), (bar_x + bar_width - 2, bar_y + h)], 
+                     fill=color, width=1)
         
-        # Add glow effect
-        glow_alpha = int(100 + math.sin(t * 4 + i) * 50)
-        glow_color = (*color, glow_alpha)
-        draw.rectangle([bar_x - 1, bar_y - 2, bar_x + bar_width + 1, y + height + 2], 
-                      outline=glow_color, width=1)
+        # Add glow and reflection effects
+        for glow in range(3):
+            glow_alpha = 60 - glow * 20
+            glow_color = (*base_color, glow_alpha)
+            
+            # Top glow
+            draw.rectangle([bar_x - glow, bar_y - glow, 
+                          bar_x + bar_width + glow, bar_y + 3], 
+                         fill=glow_color)
+            
+            # Reflection at bottom
+            reflection_height = min(15, bar_height // 3)
+            reflection_alpha = max(0, glow_alpha // 2)
+            reflection_color = (*base_color, reflection_alpha)
+            
+            draw.rectangle([bar_x, y + height + 5, 
+                          bar_x + bar_width - 2, y + height + 5 + reflection_height], 
+                         fill=reflection_color)
+        
+        # Add particle trails for high bars
+        if bar_height > height * 0.6:
+            particle_count = random.randint(2, 5)
+            for p in range(particle_count):
+                px = bar_x + random.randint(0, bar_width)
+                py = bar_y + random.randint(-20, 0)
+                particle_size = random.randint(1, 3)
+                
+                particle_color = (*base_color, random.randint(100, 200))
+                draw.ellipse([px - particle_size, py - particle_size,
+                            px + particle_size, py + particle_size], 
+                           fill=particle_color)
 
 
-def create_holographic_text(draw, text, x, y, font, base_color=(255, 255, 255)):
-    """Create holographic text effect"""
+def create_energy_orb(draw, center_x, center_y, max_radius=150, energy_level=1.0):
+    """Create pulsating energy orb with electric arcs"""
     t = time.time()
     
-    # Multiple layers for holographic effect
-    offsets = [(-2, -1), (-1, 0), (0, 1), (1, 2), (2, 1)]
-    colors = [
-        (255, 0, 255, 80),   # Magenta
-        (0, 255, 255, 100),  # Cyan
-        (255, 255, 0, 120),  # Yellow
-        (255, 176, 49, 150), # Orange
-        base_color           # Main color
+    # Main orb with multiple layers
+    for layer in range(8):
+        radius = (max_radius * 0.3 + layer * 8 + math.sin(t * 4 + layer) * 5) * energy_level
+        alpha = max(0, int(150 - layer * 18))
+        
+        # Color shifts based on time and layer
+        hue = (t * 0.5 + layer * 0.1) % 1.0
+        rgb = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+        color = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255), alpha)
+        
+        draw.ellipse([center_x - radius, center_y - radius,
+                     center_x + radius, center_y + radius], 
+                    fill=color)
+    
+    # Electric arcs
+    arc_count = int(6 * energy_level)
+    for i in range(arc_count):
+        angle_start = (t * 3 + i * 60) % 360
+        angle_end = angle_start + random.randint(30, 90)
+        
+        # Arc parameters
+        inner_radius = max_radius * 0.4
+        outer_radius = max_radius * (0.8 + random.random() * 0.4)
+        
+        # Calculate arc points
+        start_x = center_x + math.cos(math.radians(angle_start)) * inner_radius
+        start_y = center_y + math.sin(math.radians(angle_start)) * inner_radius
+        end_x = center_x + math.cos(math.radians(angle_end)) * outer_radius
+        end_y = center_y + math.sin(math.radians(angle_end)) * outer_radius
+        
+        # Draw jagged lightning arc
+        segments = 8
+        points = [(start_x, start_y)]
+        
+        for seg in range(1, segments):
+            progress = seg / segments
+            base_x = start_x + (end_x - start_x) * progress
+            base_y = start_y + (end_y - start_y) * progress
+            
+            # Add random jaggedness
+            offset_x = random.randint(-15, 15)
+            offset_y = random.randint(-15, 15)
+            
+            points.append((base_x + offset_x, base_y + offset_y))
+        
+        points.append((end_x, end_y))
+        
+        # Draw the arc with varying thickness
+        for i in range(len(points) - 1):
+            thickness = random.randint(2, 4)
+            arc_alpha = random.randint(150, 255)
+            arc_color = (255, 255, 255, arc_alpha)
+            
+            draw.line([points[i], points[i + 1]], fill=arc_color, width=thickness)
+
+
+def create_glitch_effect(image, intensity=0.3):
+    """Apply realistic glitch effects to image"""
+    t = time.time()
+    width, height = image.size
+    pixels = list(image.getdata())
+    
+    if random.random() < intensity:
+        # Horizontal line glitch
+        glitch_y = random.randint(0, height - 20)
+        glitch_height = random.randint(5, 20)
+        offset = random.randint(-50, 50)
+        
+        glitched_pixels = []
+        for y in range(height):
+            for x in range(width):
+                pixel_index = y * width + x
+                
+                if glitch_y <= y <= glitch_y + glitch_height:
+                    # Shift pixels horizontally
+                    new_x = (x + offset) % width
+                    new_index = y * width + new_x
+                    
+                    if 0 <= new_index < len(pixels):
+                        pixel = pixels[new_index]
+                        # Add color distortion
+                        r, g, b, a = pixel
+                        r = min(255, max(0, r + random.randint(-30, 30)))
+                        b = min(255, max(0, b + random.randint(-20, 20)))
+                        glitched_pixels.append((r, g, b, a))
+                    else:
+                        glitched_pixels.append(pixels[pixel_index])
+                else:
+                    glitched_pixels.append(pixels[pixel_index])
+        
+        glitched_image = Image.new('RGBA', image.size)
+        glitched_image.putdata(glitched_pixels)
+        return glitched_image
+    
+    return image
+
+
+def create_glass_morphism_panel(draw, x, y, width, height, blur_alpha=80):
+    """Create modern glassmorphism effect"""
+    # Multiple layers for depth
+    layers = [
+        (3, (255, 255, 255, 15)),  # Outer glow
+        (2, (255, 255, 255, 25)),  # Middle layer
+        (1, (255, 255, 255, blur_alpha)),  # Main glass
+        (0, (255, 255, 255, 5))   # Inner highlight
     ]
     
-    for i, (offset_x, offset_y) in enumerate(offsets):
-        # Add time-based shimmer
-        shimmer = math.sin(t * 3 + i) * 2
-        final_x = x + offset_x + shimmer
-        final_y = y + offset_y
-        
-        draw.text((final_x, final_y), text, fill=colors[i], font=font,
-                 stroke_width=1, stroke_fill=(0, 0, 0, 100))
-
-
-def create_energy_rings(draw, center_x, center_y, max_radius=100):
-    """Create expanding energy rings"""
-    t = time.time()
-    
-    for i in range(5):
-        radius = (30 + i * 15 + t * 50) % max_radius
-        alpha = int(255 - (radius / max_radius) * 255)
-        
-        colors = [(255, 176, 49, alpha), (255, 49, 49, alpha), (138, 43, 226, alpha)]
-        color = colors[i % len(colors)]
-        
-        draw.ellipse([
-            center_x - radius, center_y - radius,
-            center_x + radius, center_y + radius
-        ], outline=color, width=2)
+    for offset, color in layers:
+        draw.rounded_rectangle(
+            [x - offset, y - offset, x + width + offset, y + height + offset],
+            radius=20 + offset * 2,
+            fill=color,
+            outline=(255, 255, 255, 40) if offset == 1 else None,
+            width=1 if offset == 1 else 0
+        )
 
 
 async def get_thumb(videoid):
@@ -214,197 +406,199 @@ async def get_thumb(videoid):
                     await f.write(await resp.read())
                     await f.close()
 
-        # Create base canvas
-        canvas = Image.new('RGBA', (1280, 720), (0, 0, 0, 255))
+        # Create 4K canvas for ultra-high quality
+        canvas = Image.new('RGBA', (1920, 1080), (8, 8, 20, 255))
         
-        # Load original thumbnail
+        # Load and enhance original thumbnail
         youtube = Image.open(f"cache/thumb{videoid}.png")
-        image1 = changeImageSize(1280, 720, youtube)
+        image1 = changeImageSize(1920, 1080, youtube)
         
-        # Apply dramatic effects
+        # Advanced image processing
         enhancer = ImageEnhance.Brightness(image1)
-        image1 = enhancer.enhance(0.7)  # Darker base
+        image1 = enhancer.enhance(0.6)
         
         enhancer = ImageEnhance.Contrast(image1)
-        image1 = enhancer.enhance(1.5)  # Higher contrast
+        image1 = enhancer.enhance(1.8)
         
         enhancer = ImageEnhance.Color(image1)
-        image1 = enhancer.enhance(1.3)  # More saturated
+        image1 = enhancer.enhance(1.4)
         
-        # Apply blur for depth
-        blurred = image1.filter(ImageFilter.GaussianBlur(radius=2))
+        # Apply multiple blur layers for depth
+        blur_layers = [
+            image1.filter(ImageFilter.GaussianBlur(radius=3)),
+            image1.filter(ImageFilter.GaussianBlur(radius=1))
+        ]
         
-        # Create the base image
-        canvas.paste(blurred, (0, 0))
+        # Composite blurred layers
+        base_image = Image.blend(blur_layers[0], blur_layers[1], 0.6)
+        canvas.paste(base_image, (0, 0))
         
-        # Convert to RGBA for overlay effects
-        canvas = canvas.convert('RGBA')
+        # Apply glitch effect occasionally
+        if random.random() < 0.3:
+            canvas = create_glitch_effect(canvas, 0.2)
         
-        # Create overlay for effects
-        overlay = Image.new('RGBA', (1280, 720), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(overlay)
+        # Create dynamic background overlay
+        bg_overlay = Image.new('RGBA', (1920, 1080), (0, 0, 0, 0))
+        bg_draw = ImageDraw.Draw(bg_overlay)
         
-        # Add wave animation background
-        create_wave_animation(draw, 1280, 720)
+        # Layer multiple background effects
+        create_neural_network_bg(bg_draw, 1920, 1080)
+        create_plasma_effect(bg_draw, 1920, 1080)
+        create_cyberpunk_grid(bg_draw, 1920, 1080, 0.5)
         
-        # Add particle effects
-        create_particle_effect(draw, 1280, 720)
-        create_particle_effect(draw, 1280, 720, 1.5)  # Different timing
-        
-        # Composite overlay
-        canvas = Image.alpha_composite(canvas, overlay)
+        # Composite background
+        canvas = Image.alpha_composite(canvas, bg_overlay)
         draw = ImageDraw.Draw(canvas)
         
-        # Load fonts
+        # Load premium fonts
         try:
-            title_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 42)
-            brand_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 56)
-            info_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 28)
-            control_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 32)
+            title_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 54)
+            brand_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 72)
+            info_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 36)
+            control_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 42)
         except:
             title_font = ImageFont.load_default()
             brand_font = ImageFont.load_default()
             info_font = ImageFont.load_default()
             control_font = ImageFont.load_default()
         
-        # Create dynamic brand area with advanced effects
-        brand_overlay = Image.new('RGBA', (500, 140), (0, 0, 0, 0))
-        brand_draw = ImageDraw.Draw(brand_overlay)
+        # Ultra-modern brand section with glassmorphism
+        create_glass_morphism_panel(draw, 40, 40, 600, 180, 60)
         
-        # Animated background for brand
+        # Add multiple energy orbs
+        create_energy_orb(draw, 140, 130, 90, 1.2)
+        create_energy_orb(draw, 550, 110, 60, 0.8)
+        
+        # Holographic brand text
+        create_holographic_neon_text(draw, "♪ WYNK", 200, 70, brand_font, (0, 255, 255))
+        create_holographic_neon_text(draw, "MUSIC", 200, 140, brand_font, (255, 0, 255))
+        
+        # Subtitle with animated glow
         t = time.time()
-        for i in range(10):
-            alpha = int(30 + math.sin(t + i) * 20)
-            color = (255, 176, 49, alpha) if i % 2 else (138, 43, 226, alpha)
-            brand_draw.rounded_rectangle([i*5, i*3, 500-i*5, 140-i*3], 
-                                       radius=15+i, fill=color)
+        subtitle_alpha = int(150 + math.sin(t * 3) * 50)
+        draw.text((200, 190), "ULTRA EXPERIENCE", 
+                 fill=(255, 176, 49, subtitle_alpha), font=info_font,
+                 stroke_width=1, stroke_fill=(0, 0, 0, 100))
         
-        canvas.paste(brand_overlay, (40, 30), brand_overlay)
+        # Advanced morphing visualizer
+        create_morphing_visualizer(draw, 700, 60, 1100, 160, 60)
         
-        # Add energy rings around logo
-        create_energy_rings(draw, 120, 100, 80)
-        
-        # Holographic Wynk Music text
-        create_holographic_text(draw, "♪ WYNK", 150, 50, brand_font)
-        create_holographic_text(draw, "MUSIC", 150, 100, brand_font)
-        draw.text((150, 140), "PREMIUM EXPERIENCE", fill=(255, 176, 49), 
-                 font=info_font, stroke_width=1, stroke_fill=(0, 0, 0))
-        
-        # Advanced sound visualizer
-        create_sound_visualizer(draw, 600, 50, 600, 120, 40)
-        
-        # Dynamic info panels
-        info_panels = [
-            (f"📺 {channel}", 60, 500),
-            (f"👁 {views} views", 60, 540),
-            (f"⏱ {duration}", 60, 580)
+        # Futuristic info panels with glassmorphism
+        info_items = [
+            (f"📺 {channel}", 80, 750),
+            (f"👁 {views} views", 80, 810),
+            (f"⏱ {duration}", 80, 870)
         ]
         
-        for text, x, y in info_panels:
-            # Animated info backgrounds
-            panel_alpha = int(120 + math.sin(time.time() * 2 + y/100) * 40)
-            panel_overlay = Image.new('RGBA', (350, 35), (0, 0, 0, panel_alpha))
-            panel_draw = ImageDraw.Draw(panel_overlay)
-            panel_draw.rounded_rectangle([0, 0, 350, 35], radius=17, 
-                                       fill=(255, 176, 49, 60),
-                                       outline=(255, 255, 255, 100), width=1)
-            canvas.paste(panel_overlay, (x-10, y-5), panel_overlay)
+        for text, x, y in info_items:
+            # Animated glassmorphism panels
+            panel_time = time.time() + y/200
+            panel_alpha = int(80 + math.sin(panel_time * 2) * 30)
             
-            create_holographic_text(draw, text, x, y, info_font, (255, 255, 255))
+            create_glass_morphism_panel(draw, x-20, y-15, 500, 50, panel_alpha)
+            create_holographic_neon_text(draw, text, x, y, info_font, (0, 255, 255))
         
-        # Ultra-dynamic title
-        title_y = 630
-        title_bg = Image.new('RGBA', (1200, 70), (0, 0, 0, 0))
-        title_draw = ImageDraw.Draw(title_bg)
+        # Ultra-dynamic title with multiple effects
+        title_y = 950
+        create_glass_morphism_panel(draw, 40, title_y-20, 1840, 90, 100)
         
-        # Animated title background
-        for i in range(5):
-            alpha = int(80 - i * 15)
-            title_draw.rounded_rectangle([i*2, i*2, 1200-i*2, 70-i*2], 
-                                       radius=15-i, fill=(0, 0, 0, alpha))
+        # Add energy effects around title
+        create_energy_orb(draw, 100, title_y + 25, 40, 0.6)
+        create_energy_orb(draw, 1820, title_y + 25, 35, 0.7)
         
-        # Add neon border
-        create_neon_glow_effect(title_draw, 0, 0, 1200, 70, (255, 176, 49), 4)
+        create_holographic_neon_text(draw, clear(title), 80, title_y, title_font, (255, 255, 0))
         
-        canvas.paste(title_bg, (40, title_y-10), title_bg)
-        create_holographic_text(draw, clear(title), 60, title_y, title_font)
+        # Next-gen progress bar with particles
+        progress_y = 1020
+        bar_width = 1800
+        bar_height = 20
         
-        # Ultra-advanced progress bar
-        progress_y = 680
-        bar_width = 1180
-        bar_height = 16
+        create_glass_morphism_panel(draw, 60, progress_y-5, bar_width, bar_height+10, 120)
         
-        # Animated progress background
-        progress_bg = Image.new('RGBA', (bar_width, bar_height), (0, 0, 0, 0))
-        progress_draw = ImageDraw.Draw(progress_bg)
-        
-        # Multi-layer progress bar
-        for layer in range(3):
-            alpha = 100 - layer * 25
-            progress_draw.rounded_rectangle([layer, layer, bar_width-layer, bar_height-layer],
-                                          radius=8-layer, fill=(50, 50, 50, alpha))
-        
-        canvas.paste(progress_bg, (50, progress_y), progress_bg)
-        
-        # Animated progress fill
-        progress_percent = (time.time() * 10) % 100 / 100
+        # Animated progress with multiple layers
+        progress_percent = (time.time() * 8) % 100 / 100
         fill_width = int(bar_width * progress_percent)
         
-        progress_fill = Image.new('RGBA', (fill_width, bar_height), (0, 0, 0, 0))
-        fill_draw = ImageDraw.Draw(progress_fill)
+        # Multi-layer progress fill
+        for layer in range(4):
+            layer_width = fill_width - layer * 2
+            if layer_width > 0:
+                layer_alpha = 200 - layer * 40
+                
+                # Gradient colors
+                hue = (time.time() * 0.3 + layer * 0.2) % 1.0
+                rgb = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+                color = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255), layer_alpha)
+                
+                draw.rounded_rectangle([60 + layer, progress_y + layer, 
+                                      60 + layer_width - layer, progress_y + bar_height - layer],
+                                     radius=10 - layer, fill=color)
         
-        # Gradient fill
-        for x in range(fill_width):
-            hue = (x / fill_width + time.time() * 0.5) % 1.0
-            if hue < 0.5:
-                color = (255, int(176 + hue * 79), 49, 200)
-            else:
-                color = (255, 49, int(49 + (hue - 0.5) * 157), 200)
-            fill_draw.line([(x, 0), (x, bar_height)], fill=color)
+        # Animated progress indicator with trails
+        indicator_x = 60 + fill_width
+        for trail in range(8):
+            trail_x = indicator_x - trail * 5
+            trail_alpha = max(0, 200 - trail * 25)
+            trail_size = 8 - trail
+            
+            draw.ellipse([trail_x - trail_size, progress_y + 5,
+                         trail_x + trail_size, progress_y + 15],
+                        fill=(255, 255, 255, trail_alpha))
         
-        canvas.paste(progress_fill, (50, progress_y), progress_fill)
-        
-        # Glowing progress indicator
-        indicator_x = 50 + fill_width
-        for size in range(5):
-            alpha = 200 - size * 30
-            draw.ellipse([indicator_x - 8 + size, progress_y + 3 - size,
-                         indicator_x + 8 - size, progress_y + 13 + size],
-                        fill=(255, 255, 255, alpha))
-        
-        # Advanced control buttons
-        controls_y = 700
-        button_data = [
-            ("⏮", 400), ("⏸", 500), ("⏭", 600),
-            ("🔀", 300), ("🔁", 700), ("⚡", 800)
+        # Ultra-modern control buttons with advanced effects
+        controls_y = 1050
+        buttons = [
+            ("⏮", 300, (255, 100, 100)), ("⏯", 450, (100, 255, 100)), ("⏭", 600, (100, 100, 255)),
+            ("🔀", 150, (255, 255, 100)), ("🔁", 750, (255, 100, 255)), ("⚡", 900, (100, 255, 255))
         ]
         
-        for icon, x in button_data:
-            # Animated button backgrounds
-            btn_alpha = int(150 + math.sin(time.time() * 4 + x/100) * 50)
+        for icon, x, color in buttons:
+            # Multi-layer button with energy effects
+            create_energy_orb(draw, x, controls_y, 50, 0.5)
             
-            # Create button with multiple layers
-            for layer in range(4):
-                size = 35 - layer * 2
-                alpha = btn_alpha - layer * 30
-                color = (255, 176, 49, alpha) if icon == "⚡" else (100, 100, 100, alpha)
-                
-                draw.ellipse([x - size//2, controls_y - size//2,
-                             x + size//2, controls_y + size//2],
-                            fill=color, outline=(255, 255, 255, alpha//2), width=1)
+            # Glassmorphism button base
+            create_glass_morphism_panel(draw, x-35, controls_y-35, 70, 70, 100)
             
-            # Icon with glow
-            create_holographic_text(draw, icon, x - 10, controls_y - 12, control_font)
+            # Icon with special effects
+            create_holographic_neon_text(draw, icon, x-15, controls_y-18, control_font, color)
         
-        # Clean up
+        # Add final atmospheric effects
+        atmosphere_overlay = Image.new('RGBA', (1920, 1080), (0, 0, 0, 0))
+        atmo_draw = ImageDraw.Draw(atmosphere_overlay)
+        
+        # Floating particles with trails
+        for i in range(30):
+            particle_t = time.time() + i * 0.5
+            px = (100 + i * 60 + math.sin(particle_t) * 100) % 1920
+            py = (80 + i * 30 + math.cos(particle_t * 0.8) * 150) % 1080
+            
+            # Particle with trail
+            for trail in range(5):
+                trail_px = px - math.sin(particle_t) * trail * 10
+                trail_py = py - math.cos(particle_t * 0.8) * trail * 5
+                trail_alpha = max(0, 150 - trail * 30)
+                trail_size = max(1, 4 - trail)
+                
+                hue = (particle_t * 0.2 + i * 0.1) % 1.0
+                rgb = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+                color = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255), trail_alpha)
+                
+                atmo_draw.ellipse([trail_px - trail_size, trail_py - trail_size,
+                                 trail_px + trail_size, trail_py + trail_size], 
+                                fill=color)
+        
+        # Final composite
+        canvas = Image.alpha_composite(canvas, atmosphere_overlay)
+        
+        # Clean up temporary files
         try:
             os.remove(f"cache/thumb{videoid}.png")
         except:
             pass
             
-        canvas.save(f"cache/{videoid}.png")
+        canvas.save(f"cache/{videoid}.png", quality=95, optimize=True)
         return f"cache/{videoid}.png"
         
     except Exception as e:
-        print(f"Advanced thumbnail generation error: {e}")
+        print(f"Ultra-modern thumbnail generation error: {e}")
         return YOUTUBE_IMG_URL
