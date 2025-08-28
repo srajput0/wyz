@@ -1,41 +1,66 @@
-
 import os
 import re
+import random
+
 import aiofiles
 import aiohttp
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance
+from PIL import ImageFilter, ImageFont, ImageOps
+
+from unidecode import unidecode
 from youtubesearchpython.__future__ import VideosSearch
 
+from AnonXMusic import app
 from config import YOUTUBE_IMG_URL
 
 
 def changeImageSize(maxWidth, maxHeight, image):
-    """Resize image keeping ratio"""
     widthRatio = maxWidth / image.size[0]
     heightRatio = maxHeight / image.size[1]
     newWidth = int(widthRatio * image.size[0])
     newHeight = int(heightRatio * image.size[1])
-    return image.resize((newWidth, newHeight))
+    newImage = image.resize((newWidth, newHeight))
+    return newImage
 
 
-async def create_modern_thumbnail_card(videoid, output_path):
-    """
-    Generate a modern glassmorphism thumbnail card
-    """
+def clear(text):
+    list = text.split(" ")
+    title = ""
+    for i in list:
+        if len(title) + len(i) < 60:
+            title += " " + i
+    return title.strip()
 
-    # ✅ Step 1: Fetch video info
+
+async def get_thumb(videoid):
+    if os.path.isfile(f"cache/{videoid}.png"):
+        return f"cache/{videoid}.png"
+
     url = f"https://www.youtube.com/watch?v={videoid}"
     try:
         results = VideosSearch(url, limit=1)
-        result = (await results.next())["result"][0]
+        for result in (await results.next())["result"]:
+            try:
+                title = result["title"]
+                title = re.sub("\W+", " ", title)
+                title = title.title()
+            except:
+                title = "Unsupported Title"
+            try:
+                duration = result["duration"]
+            except:
+                duration = "Unknown Mins"
+            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+            try:
+                views = result["viewCount"]["short"]
+            except:
+                views = "Unknown Views"
+            try:
+                channel = result["channel"]["name"]
+            except:
+                channel = "Unknown Channel"
 
-        title = re.sub("\W+", " ", result.get("title", "Unknown")).title()
-        duration = result.get("duration", "0:00")
-        views = result.get("viewCount", {}).get("short", "0 views")
-        thumbnail = result.get("thumbnails", [{}])[0].get("url", "").split("?")[0]
-
-        # ✅ Step 2: Download thumbnail
         async with aiohttp.ClientSession() as session:
             async with session.get(thumbnail) as resp:
                 if resp.status == 200:
@@ -43,65 +68,59 @@ async def create_modern_thumbnail_card(videoid, output_path):
                     await f.write(await resp.read())
                     await f.close()
 
-        youtube_thumb = Image.open(f"cache/thumb{videoid}.png").convert("RGB")
-
-        # ✅ Step 3: Background (blurred)
-        canvas = youtube_thumb.resize((1280, 720)).filter(ImageFilter.GaussianBlur(25))
-        overlay = Image.new("RGBA", (1280, 720), (0, 0, 0, 180))
-        canvas = Image.alpha_composite(canvas.convert("RGBA"), overlay)
-
-        draw = ImageDraw.Draw(canvas)
-
-        # ✅ Step 4: Fonts
+        
+        colors = ["turquoise", "pink", "yellow"]
+        border = colors[0]
+        youtube = Image.open(f"cache/thumb{videoid}.png")
+        image1 = changeImageSize(1280, 720, youtube)
+        bg_bright = ImageEnhance.Brightness(image1)
+        bg_logo = bg_bright.enhance(1.1)
+        bg_contra = ImageEnhance.Contrast(bg_logo)
+        bg_logo = bg_contra.enhance(1.1)
+        logox = ImageOps.expand(bg_logo, border=12, fill=f"{border}")
+        background = changeImageSize(1280, 720, logox)
+        draw = ImageDraw.Draw(background)
+        arial = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 30)
+        font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 30)
+        font4=ImageFont.truetype("AnonXMusic/assets/font4.ttf",30)
+        draw.text((550, 8), unidecode(app.name), fill="turquoise", font=font4, width=50,)
+        
+        draw.text(
+            (55, 560),
+            f"{channel} | {views[:23]}",
+            (255, 255, 255),
+            font=arial,
+        )
+        draw.text(
+            (57, 600),
+            clear(title),
+            fill="turquoise",
+            font=font,
+        )
+        draw.line(
+            [(55, 660), (1220, 660)],
+            fill="turquoise",
+            width=8,
+            joint="curve",
+        )
+        draw.ellipse(
+            [(918, 648), (942, 672)],
+            outline="black",
+            fill="black",
+            width=15,
+        )
+        draw.text(
+            (430, 675),
+            f"↻        ◁      II       ▷        ↺",
+            fill="turquoise",
+            font=font4,
+        )
         try:
-            title_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 42)
-            info_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 28)
-            control_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 52)
+            os.remove(f"cache/thumb{videoid}.png")
         except:
-            title_font = ImageFont.load_default()
-            info_font = ImageFont.load_default()
-            control_font = ImageFont.load_default()
-
-        # ✅ Step 5: Glassmorphism Card
-        card_w, card_h = 1000, 550
-        card = Image.new("RGBA", (card_w, card_h), (255, 255, 255, 40))
-        mask = Image.new("L", (card_w, card_h), 0)
-        ImageDraw.Draw(mask).rounded_rectangle([0, 0, card_w, card_h], 40, fill=255)
-        canvas.paste(card, (140, 90), mask)
-
-        # ✅ Step 6: Video Thumbnail inside card
-        thumb_resized = youtube_thumb.resize((960, 300))
-        thumb_mask = Image.new("L", (960, 300), 0)
-        ImageDraw.Draw(thumb_mask).rounded_rectangle([0, 0, 960, 300], 30, fill=255)
-        canvas.paste(thumb_resized, (160, 110), thumb_mask)
-
-        # ✅ Step 7: Title & subtitle
-        short_title = title[:45] + "..." if len(title) > 45 else title
-        draw.text((180, 430), short_title, fill="black", font=title_font)
-        draw.text((180, 480), f"YouTube | {views}", fill=(50, 50, 50), font=info_font)
-
-        # ✅ Step 8: Progress bar
-        bar_x, bar_y, bar_w, bar_h = 180, 520, 920, 8
-        draw.rounded_rectangle([bar_x, bar_y, bar_x+bar_w, bar_y+bar_h], 4, fill=(160, 160, 160))
-        progress = int(bar_w * 0.25)  # Fake 25% progress
-        draw.rounded_rectangle([bar_x, bar_y, bar_x+progress, bar_y+bar_h], 4, fill=(255, 0, 0))
-
-        # Time
-        draw.text((180, 540), "0:00", fill="black", font=info_font)
-        draw.text((bar_x+bar_w-70, 540), duration, fill="black", font=info_font)
-
-        # ✅ Step 9: Control buttons
-        icons = ["🔀", "⏮", "▶", "⏭", "🔁"]
-        x_pos = [300, 450, 640, 830, 1000]
-        for icon, x in zip(icons, x_pos):
-            draw.text((x, 580), icon, fill="black", font=control_font)
-
-        # ✅ Step 10: Save & cleanup
-        canvas.save(output_path, quality=95)
-        os.remove(f"cache/thumb{videoid}.png")
-
-        return output_path
-
+            pass
+        background.save(f"cache/{videoid}.png")
+        return f"cache/{videoid}.png"
     except Exception as e:
-        print(f"Thumbnail generation error: {e}")
+        print(e)
         return YOUTUBE_IMG_URL
