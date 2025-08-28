@@ -73,19 +73,38 @@ class AdvancedThumbnailGenerator:
     
     def add_neon_glow(self, draw: ImageDraw.Draw, text: str, pos: Tuple[int, int], 
                      font: ImageFont.FreeTypeFont, color: str, glow_radius: int = 3):
-        """Add neon glow effect to text"""
+        """Add enhanced neon glow effect to text"""
         x, y = pos
+        rgb_color = self.hex_to_rgb(color)
         
-        # Draw multiple layers for glow effect
+        # Outer glow - largest and most transparent
+        for i in range(glow_radius * 2, glow_radius, -1):
+            glow_alpha = int(100 * (1 - (i - glow_radius) / glow_radius))
+            glow_color = (*rgb_color, glow_alpha)
+            for dx in range(-i, i + 1):
+                for dy in range(-i, i + 1):
+                    distance = math.sqrt(dx*dx + dy*dy)
+                    if distance <= i:
+                        intensity = 1 - (distance / i)
+                        final_alpha = int(glow_alpha * intensity)
+                        if final_alpha > 0:
+                            draw.text((x + dx, y + dy), text, font=font, 
+                                    fill=(*rgb_color, final_alpha))
+        
+        # Inner bright glow
         for i in range(glow_radius, 0, -1):
-            glow_color = (*self.hex_to_rgb(color), int(255 * (i / glow_radius) * 0.3))
+            glow_alpha = int(200 * (i / glow_radius))
             for dx in range(-i, i + 1):
                 for dy in range(-i, i + 1):
                     if dx*dx + dy*dy <= i*i:
-                        draw.text((x + dx, y + dy), text, font=font, fill=glow_color)
+                        draw.text((x + dx, y + dy), text, font=font, 
+                                fill=(*rgb_color, glow_alpha))
         
-        # Draw main text
+        # Core text - brightest
         draw.text(pos, text, font=font, fill=color)
+        
+        # Add extra brightness to core
+        draw.text(pos, text, font=font, fill=(*rgb_color, 100))
     
     def hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
         """Convert hex color to RGB tuple"""
@@ -117,24 +136,53 @@ class AdvancedThumbnailGenerator:
         return Image.alpha_composite(image.convert('RGBA'), overlay)
     
     def add_music_visualizer(self, draw: ImageDraw.Draw, x: int, y: int, 
-                           width: int, color: str, bars: int = 15):
-        """Add animated-style music visualizer bars"""
-        bar_width = width // bars
+                           width: int, color: str, bars: int = 20):
+        """Add impressive animated-style music visualizer bars with neon effect"""
+        bar_width = max(width // bars - 2, 8)
         rgb_color = self.hex_to_rgb(color)
         
         for i in range(bars):
-            # Random heights for visualizer effect
-            bar_height = random.randint(10, 40)
-            bar_x = x + i * bar_width
+            # Create varied heights for dynamic look
+            base_height = 15
+            wave_effect = 25 * math.sin((i / bars) * math.pi * 2)
+            random_variation = random.randint(-10, 15)
+            bar_height = int(base_height + wave_effect + random_variation)
+            bar_height = max(bar_height, 5)  # Minimum height
+            
+            bar_x = x + i * (bar_width + 2)
             bar_y = y - bar_height
             
-            # Gradient effect on bars
-            alpha = int(255 * (1 - i / bars * 0.5))
-            bar_color = (*rgb_color, alpha)
+            # Create neon glow effect for each bar
+            for glow in range(3, 0, -1):
+                glow_alpha = int(80 * (glow / 3))
+                glow_width = bar_width + glow * 2
+                glow_height = bar_height + glow * 2
+                
+                draw.rectangle(
+                    [(bar_x - glow, bar_y - glow), 
+                     (bar_x + glow_width, y + glow)],
+                    fill=(*rgb_color, glow_alpha)
+                )
             
+            # Main bar with gradient effect
+            gradient_steps = max(bar_height // 3, 3)
+            for step in range(gradient_steps):
+                step_height = bar_height // gradient_steps
+                step_y = bar_y + step * step_height
+                
+                # Gradient from bright at top to dimmer at bottom
+                brightness = 1.0 - (step / gradient_steps) * 0.4
+                step_color = tuple(int(c * brightness) for c in rgb_color)
+                
+                draw.rectangle(
+                    [(bar_x, step_y), (bar_x + bar_width, step_y + step_height)],
+                    fill=(*step_color, 255)
+                )
+            
+            # Add bright highlight on top of each bar
             draw.rectangle(
-                [(bar_x, bar_y), (bar_x + bar_width - 2, y)],
-                fill=bar_color
+                [(bar_x, bar_y), (bar_x + bar_width, bar_y + 2)],
+                fill="white"
             )
 
 def changeImageSize(maxWidth: int, maxHeight: int, image: Image.Image) -> Image.Image:
@@ -293,46 +341,136 @@ async def get_thumb(videoid: str) -> str:
             text_y = badge_y + 5
             draw.text((text_x, text_y), duration_formatted, fill="white", font=info_font)
         
-        # Add decorative line with gradient effect
+        # Add decorative neon line with pulsing effect
         line_y = 620
         gradient_line_colors = generator.hex_to_rgb(accent_color)
-        for i in range(5):
-            alpha = int(255 * (1 - i / 5))
-            line_color = (*gradient_line_colors, alpha)
-            draw.line(
-                [(60, line_y + i), (1220, line_y + i)],
-                fill=line_color,
-                width=2
-            )
+        
+        # Create pulsing neon line effect
+        for pulse_layer in range(3):
+            pulse_width = 6 - pulse_layer * 2
+            pulse_alpha = int(255 * (0.8 - pulse_layer * 0.2))
+            pulse_color = (*gradient_line_colors, pulse_alpha)
+            
+            # Main horizontal line
+            draw.line([(60, line_y), (1220, line_y)], fill=pulse_color, width=pulse_width)
+            
+            # Add decorative dots along the line
+            for dot_x in range(80, 1200, 40):
+                dot_size = pulse_width // 2
+                draw.ellipse(
+                    [(dot_x - dot_size, line_y - dot_size), 
+                     (dot_x + dot_size, line_y + dot_size)],
+                    fill=pulse_color
+                )
+        
+        # Add electric spark effects at line ends
+        spark_points_left = [
+            (55, line_y), (45, line_y - 5), (50, line_y), (40, line_y + 5), (55, line_y)
+        ]
+        spark_points_right = [
+            (1225, line_y), (1235, line_y - 5), (1230, line_y), (1240, line_y + 5), (1225, line_y)
+        ]
+        
+        draw.polygon(spark_points_left, fill=accent_color)
+        draw.polygon(spark_points_right, fill=accent_color)
         
         # Add music visualizer
         generator.add_music_visualizer(draw, 60, 650, 200, accent_color)
         
-        # Add modern control buttons
+        # Add impressive control buttons with neon effects
         controls_y = 650
-        control_symbols = ["⏮", "⏯", "⏭", "🔀", "🔁"]
-        control_spacing = 150
-        start_x = 400
+        control_spacing = 120
+        start_x = 350
         
-        for i, symbol in enumerate(control_symbols):
+        # Create custom control symbols with paths
+        control_designs = [
+            {"name": "prev", "color": accent_color},
+            {"name": "play", "color": "#FF3366"},  # Bright red for play
+            {"name": "next", "color": accent_color},
+            {"name": "shuffle", "color": "#00FF88"},  # Bright green
+            {"name": "repeat", "color": "#FFD700"}   # Gold
+        ]
+        
+        for i, control in enumerate(control_designs):
             x = start_x + i * control_spacing
+            button_color = control["color"]
+            button_rgb = generator.hex_to_rgb(button_color)
             
-            # Button background
+            # Create multiple glow layers for neon effect
+            for glow_size in range(8, 0, -1):
+                glow_alpha = int(30 * (glow_size / 8))
+                glow_color = (*button_rgb, glow_alpha)
+                
+                draw.ellipse(
+                    [(x - 30 - glow_size, controls_y - 30 - glow_size), 
+                     (x + 30 + glow_size, controls_y + 30 + glow_size)],
+                    fill=glow_color
+                )
+            
+            # Main button with gradient effect
             draw.ellipse(
-                [(x - 25, controls_y - 25), (x + 25, controls_y + 25)],
-                fill=(*generator.hex_to_rgb(accent_color), 40),
-                outline=accent_color,
-                width=2
+                [(x - 30, controls_y - 30), (x + 30, controls_y + 30)],
+                fill=(*button_rgb, 200),
+                outline=button_color,
+                width=3
             )
             
-            # Center the symbol
-            symbol_bbox = draw.textbbox((0, 0), symbol, font=control_font)
-            symbol_width = symbol_bbox[2] - symbol_bbox[0]
-            symbol_height = symbol_bbox[3] - symbol_bbox[1]
-            symbol_x = x - symbol_width // 2
-            symbol_y = controls_y - symbol_height // 2
+            # Inner highlight circle for 3D effect
+            draw.ellipse(
+                [(x - 25, controls_y - 25), (x + 25, controls_y + 25)],
+                outline=(*button_rgb, 100),
+                width=1
+            )
             
-            draw.text((symbol_x, symbol_y), symbol, fill="white", font=control_font)
+            # Draw custom symbols with thick lines and glow
+            symbol_color = "white"
+            line_width = 4
+            
+            if control["name"] == "prev":
+                # Previous symbol: |◄
+                draw.line([(x - 12, controls_y - 15), (x - 12, controls_y + 15)], 
+                         fill=symbol_color, width=line_width)
+                points = [(x - 8, controls_y), (x + 8, controls_y - 12), (x + 8, controls_y + 12)]
+                draw.polygon(points, fill=symbol_color)
+                
+            elif control["name"] == "play":
+                # Play/Pause symbol: ▶ or ⏸
+                if random.choice([True, False]):  # Randomize play/pause
+                    # Play triangle
+                    points = [(x - 10, controls_y - 15), (x - 10, controls_y + 15), (x + 15, controls_y)]
+                    draw.polygon(points, fill=symbol_color)
+                else:
+                    # Pause bars
+                    draw.rectangle([(x - 8, controls_y - 15), (x - 2, controls_y + 15)], fill=symbol_color)
+                    draw.rectangle([(x + 2, controls_y - 15), (x + 8, controls_y + 15)], fill=symbol_color)
+                
+            elif control["name"] == "next":
+                # Next symbol: ►|
+                points = [(x - 8, controls_y), (x + 8, controls_y - 12), (x + 8, controls_y + 12)]
+                draw.polygon(points, fill=symbol_color)
+                draw.line([(x + 12, controls_y - 15), (x + 12, controls_y + 15)], 
+                         fill=symbol_color, width=line_width)
+                
+            elif control["name"] == "shuffle":
+                # Shuffle symbol: crossing arrows
+                draw.line([(x - 15, controls_y - 8), (x + 15, controls_y + 8)], 
+                         fill=symbol_color, width=line_width)
+                draw.line([(x - 15, controls_y + 8), (x + 15, controls_y - 8)], 
+                         fill=symbol_color, width=line_width)
+                # Arrow heads
+                draw.polygon([(x + 15, controls_y + 8), (x + 10, controls_y + 3), (x + 10, controls_y + 13)], 
+                           fill=symbol_color)
+                draw.polygon([(x - 15, controls_y - 8), (x - 10, controls_y - 3), (x - 10, controls_y - 13)], 
+                           fill=symbol_color)
+                
+            elif control["name"] == "repeat":
+                # Repeat symbol: circular arrow
+                # Draw arc-like repeat symbol
+                draw.arc([(x - 12, controls_y - 12), (x + 12, controls_y + 12)], 
+                        start=30, end=330, fill=symbol_color, width=line_width)
+                # Arrow head
+                draw.polygon([(x + 8, controls_y - 10), (x + 12, controls_y - 6), (x + 4, controls_y - 6)], 
+                           fill=symbol_color)
         
         # Add subtle vignette effect
         vignette = Image.new('RGBA', (1280, 720), (0, 0, 0, 0))
