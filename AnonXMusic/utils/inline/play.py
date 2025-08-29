@@ -91,16 +91,16 @@ def create_bar(played_sec, duration_sec):
 
 
 # Ultra-dynamic beat frames with faster animation
-frames = [
-    "♪ ılıılıılıılı ♪",
-    "♫ liiliiliilii ♫", 
-    "♪ ılıılıılıılıI ♪",
-    "♫ İlİİlİİlİİl ♫",
-    "♪ ıLıLıLıLıLı ♪",
-    "♫ ılıLıLıLılı ♫",
-    "♪ LıLıLıLıLıL ♪",
-    "♫ ılıİlıİlıİ ♫"
-]
+# frames = [
+#     "♪ ılıılıılıılı ♪",
+#     "♫ liiliiliilii ♫", 
+#     "♪ ılıılıılıılıI ♪",
+#     "♫ İlİİlİİlİİl ♫",
+#     "♪ ıLıLıLıLıLı ♪",
+#     "♫ ılıLıLıLılı ♫",
+#     "♪ LıLıLıLıLıL ♪",
+#     "♫ ılıİlıİlıİ ♫"
+# ]
 
 def get_beat_frame():
     """Get current beat frame - FAST 3 changes per second"""
@@ -134,18 +134,6 @@ def stream_markup_timer(_, chat_id, played, dur):
         ],
         [
             InlineKeyboardButton(
-                text=current_frame,
-                callback_data=f"BeatFrame_{timestamp}",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="⚡ Speed Control ⚡",
-                callback_data=f"speed_control_{chat_id}",
-            )
-        ],
-        [
-            InlineKeyboardButton(
                 text="❚❚", 
                 callback_data=f"ADMIN Pause|{chat_id}"
             ),
@@ -162,59 +150,59 @@ def stream_markup_timer(_, chat_id, played, dur):
     return buttons
 
 
-def speed_control_markup(_, chat_id):
-    """Enhanced speed control markup with better callback handling"""
-    buttons = [
-        [
-            InlineKeyboardButton(
-                text="🐌 0.25x (Turtle)",
-                callback_data=f"SpeedUP {chat_id}|0.25",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="🚶‍♂️ 0.5x (Slow)",
-                callback_data=f"SpeedUP {chat_id}|0.5",
-            ),
-            InlineKeyboardButton(
-                text="🚶‍♀️ 0.75x (Slower)",
-                callback_data=f"SpeedUP {chat_id}|0.75",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="▶️ 1.0x (Normal) ▶️",
-                callback_data=f"SpeedUP {chat_id}|1.0",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="🏃‍♂️ 1.25x (Fast)",
-                callback_data=f"SpeedUP {chat_id}|1.25",
-            ),
-            InlineKeyboardButton(
-                text="🏃‍♀️ 1.5x (Faster)",
-                callback_data=f"SpeedUP {chat_id}|1.5",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="🚀 2.0x (Lightning)",
-                callback_data=f"SpeedUP {chat_id}|2.0",
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="🔙 Back to Player",
-                callback_data=f"back_to_player_{chat_id}",
-            ),
-            InlineKeyboardButton(
-                text="❌ Close",
-                callback_data="close",
-            ),
-        ],
-    ]
-    return InlineKeyboardMarkup(buttons)
+# def speed_control_markup(_, chat_id):
+#     """Enhanced speed control markup with better callback handling"""
+#     buttons = [
+#         [
+#             InlineKeyboardButton(
+#                 text="🐌 0.25x (Turtle)",
+#                 callback_data=f"SpeedUP {chat_id}|0.25",
+#             ),
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 text="🚶‍♂️ 0.5x (Slow)",
+#                 callback_data=f"SpeedUP {chat_id}|0.5",
+#             ),
+#             InlineKeyboardButton(
+#                 text="🚶‍♀️ 0.75x (Slower)",
+#                 callback_data=f"SpeedUP {chat_id}|0.75",
+#             ),
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 text="▶️ 1.0x (Normal) ▶️",
+#                 callback_data=f"SpeedUP {chat_id}|1.0",
+#             ),
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 text="🏃‍♂️ 1.25x (Fast)",
+#                 callback_data=f"SpeedUP {chat_id}|1.25",
+#             ),
+#             InlineKeyboardButton(
+#                 text="🏃‍♀️ 1.5x (Faster)",
+#                 callback_data=f"SpeedUP {chat_id}|1.5",
+#             ),
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 text="🚀 2.0x (Lightning)",
+#                 callback_data=f"SpeedUP {chat_id}|2.0",
+#             ),
+#         ],
+#         [
+#             InlineKeyboardButton(
+#                 text="🔙 Back to Player",
+#                 callback_data=f"back_to_player_{chat_id}",
+#             ),
+#             InlineKeyboardButton(
+#                 text="❌ Close",
+#                 callback_data="close",
+#             ),
+#         ],
+#     ]
+#     return InlineKeyboardMarkup(buttons)
 
 
 def stream_markup(_, chat_id):
