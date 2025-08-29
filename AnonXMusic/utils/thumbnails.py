@@ -51,6 +51,20 @@ class UltraPremiumThumbnailGenerator:
         self.pattern_styles = [
             "hexagonal", "dots", "waves", "geometric", "neural"
         ]
+        
+        # New: Player control icon paths (replace with actual paths or generate them)
+        self.icon_paths = {
+            "play": "AnonXMusic/assets/play_icon.png", # Placeholder
+            "pause": "AnonXMusic/assets/pause_icon.png", # Placeholder
+            "next": "AnonXMusic/assets/next_icon.png", # Placeholder
+            "previous": "AnonXMusic/assets/prev_icon.png", # Placeholder
+            "shuffle": "AnonXMusic/assets/shuffle_icon.png", # Placeholder
+            "repeat": "AnonXMusic/assets/repeat_icon.png", # Placeholder
+            "volume_up": "AnonXMusic/assets/volume_up_icon.png", # Placeholder
+            "volume_down": "AnonXMusic/assets/volume_down_icon.png", # Placeholder
+            "volume_mute": "AnonXMusic/assets/volume_mute_icon.png", # Placeholder
+            "youtube": "AnonXMusic/assets/youtube_logo.png" # Placeholder
+        }
     
     def create_neural_pattern(self, width: int, height: int, intensity: float = 0.3) -> Image.Image:
         """Create modern neural network pattern overlay"""
@@ -110,9 +124,7 @@ class UltraPremiumThumbnailGenerator:
             for x in range(width):
                 # Create holographic effect using multiple sine waves
                 holo_factor = (
-                    math.sin(x * 0.01) * 
-                    math.cos(y * 0.008) * 
-                    math.sin((x + y) * 0.005)
+                    math.sin(x * 0.01) * math.cos(y * 0.008) * math.sin((x + y) * 0.005)
                 )
                 
                 ratio = (x + y + holo_factor * 100) / (width + height)
@@ -195,96 +207,8 @@ class UltraPremiumThumbnailGenerator:
     
     def create_advanced_control_ui(self, draw: ImageDraw.Draw, center_x: int, bottom_y: int,
                                  gradient_colors: List[str]) -> None:
-        """Create ultra-modern control interface"""
-        # Control panel background with glassmorphism
-        panel_width = 500
-        panel_height = 120
-        panel_x = center_x - panel_width // 2
-        panel_y = bottom_y - 150
-        
-        # Multi-layer glass effect
-        for layer in range(8, 0, -1):
-            alpha = int(30 * layer / 8)
-            blur_size = layer * 2
-            draw.rounded_rectangle(
-                [(panel_x - blur_size, panel_y - blur_size), 
-                 (panel_x + panel_width + blur_size, panel_y + panel_height + blur_size)],
-                radius=25 + blur_size,
-                fill=(255, 255, 255, alpha)
-            )
-        
-        # Main glass panel
-        draw.rounded_rectangle(
-            [(panel_x, panel_y), (panel_x + panel_width, panel_y + panel_height)],
-            radius=25,
-            fill=(0, 0, 0, 100),
-            outline=gradient_colors[0],
-            width=3
-        )
-        
-        # Control buttons with advanced styling
-        button_y = panel_y + 60
-        buttons = [
-            {"type": "previous", "x": panel_x + 80, "color": self.control_colors[0]},
-            {"type": random.choice(["play", "pause"]), "x": panel_x + 180, "color": self.control_colors[1]},
-            {"type": "next", "x": panel_x + 280, "color": self.control_colors[2]},
-            {"type": "shuffle", "x": panel_x + 380, "color": self.control_colors[3]},
-        ]
-        
-        for button in buttons:
-            self.draw_ultra_control_button(
-                draw, button["x"], button_y, 
-                button["type"], button["color"], 35
-            )
-        
-        # Ultra-modern progress bar
-        progress_y = panel_y + 20
-        progress_width = 400
-        progress_x = center_x - progress_width // 2
-        
-        # Progress bar with neon effect
-        draw.rounded_rectangle(
-            [(progress_x, progress_y), (progress_x + progress_width, progress_y + 6)],
-            radius=3,
-            fill=(255, 255, 255, 40)
-        )
-        
-        # Animated progress fill
-        progress_percent = random.randint(25, 75)
-        fill_width = int(progress_width * progress_percent / 100)
-        
-        # Neon progress fill
-        for glow in range(6, 0, -1):
-            glow_alpha = int(150 * glow / 6)
-            glow_color = (*self.hex_to_rgb(gradient_colors[0]), glow_alpha)
-            draw.rounded_rectangle(
-                [(progress_x - glow, progress_y - glow), 
-                 (progress_x + fill_width + glow, progress_y + 6 + glow)],
-                radius=6,
-                fill=glow_color
-            )
-        
-        draw.rounded_rectangle(
-            [(progress_x, progress_y), (progress_x + fill_width, progress_y + 6)],
-            radius=3,
-            fill=gradient_colors[0]
-        )
-        
-        # Glowing progress handle
-        handle_x = progress_x + fill_width
-        for glow in range(8, 0, -1):
-            alpha = int(200 * glow / 8)
-            size = 12 + glow * 2
-            draw.ellipse(
-                [(handle_x - size, progress_y - size + 3), 
-                 (handle_x + size, progress_y + size + 3)],
-                fill=(255, 255, 255, alpha)
-            )
-        
-        draw.ellipse(
-            [(handle_x - 8, progress_y - 5), (handle_x + 8, progress_y + 11)],
-            fill="white"
-        )
+        """Create ultra-modern control interface (This will be replaced by the new player card)"""
+        pass # This function will be mostly replaced by the new player card design
     
     def draw_ultra_control_button(self, draw: ImageDraw.Draw, x: int, y: int, 
                                  button_type: str, color: str, size: int = 35):
@@ -459,6 +383,125 @@ class UltraPremiumThumbnailGenerator:
         hex_color = hex_color.lstrip('#')
         return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
+    # --- NEW FUNCTIONS FOR PLAYER CARD ---
+
+    def create_glassmorphism_card(self, canvas: Image.Image, x: int, y: int, width: int, height: int, radius: int = 40, blur_radius: int = 30, bg_alpha: int = 150, border_color: str = "#FFFFFF", border_width: int = 3) -> Image.Image:
+        """Creates a glassmorphism effect card on the canvas."""
+        
+        # 1. Create a blurred version of the background section
+        bg_section = canvas.crop((x - blur_radius, y - blur_radius, x + width + blur_radius, y + height + blur_radius))
+        bg_section = bg_section.filter(ImageFilter.GaussianBlur(blur_radius))
+        
+        # 2. Create a transparent overlay for the card shape
+        card_overlay = Image.new('RGBA', (width + 2 * blur_radius, height + 2 * blur_radius), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(card_overlay)
+        draw.rounded_rectangle([(blur_radius, blur_radius), (width + blur_radius, height + blur_radius)], 
+                               radius=radius, fill=(255, 255, 255, bg_alpha)) # White with alpha
+        
+        # 3. Composite the blurred background with the card overlay
+        final_card_region = Image.alpha_composite(bg_section, card_overlay)
+        
+        # 4. Create the border and inner shadow/highlight effect on a new transparent layer
+        border_layer = Image.new('RGBA', (width + 2 * blur_radius, height + 2 * blur_radius), (0, 0, 0, 0))
+        draw_border = ImageDraw.Draw(border_layer)
+        
+        # Outer border
+        draw_border.rounded_rectangle([(blur_radius, blur_radius), (width + blur_radius, height + blur_radius)], 
+                                      radius=radius, outline=border_color, width=border_width)
+        
+        # Inner highlight for glass effect
+        draw_border.rounded_rectangle([(blur_radius + border_width, blur_radius + border_width), 
+                                       (width + blur_radius - border_width, height + blur_radius - border_width)], 
+                                      radius=radius - border_width, outline=(255, 255, 255, 80), width=1)
+
+        # Drop shadow (optional, can be done with a separate blurred dark shape)
+        shadow_offset = 10
+        shadow_alpha = 70
+        shadow_blur = 15
+        shadow_layer = Image.new('RGBA', canvas.size, (0,0,0,0))
+        draw_shadow = ImageDraw.Draw(shadow_layer)
+        draw_shadow.rounded_rectangle(
+            [(x + shadow_offset, y + shadow_offset), 
+             (x + width + shadow_offset, y + height + shadow_offset)],
+            radius=radius, fill=(0,0,0,shadow_alpha)
+        )
+        shadow_layer = shadow_layer.filter(ImageFilter.GaussianBlur(shadow_blur))
+        
+        # Composite shadow first onto canvas
+        canvas = Image.alpha_composite(canvas, shadow_layer)
+
+        # Paste the final card region back onto the canvas
+        canvas.paste(final_card_region, (x - blur_radius, y - blur_radius), final_card_region)
+        canvas.paste(border_layer, (x - blur_radius, y - blur_radius), border_layer) # Paste border last
+        
+        return canvas
+
+    def draw_player_icon(self, draw: ImageDraw.Draw, icon_type: str, x: int, y: int, size: int, color: str = "#FFFFFF", glow_color: str = None) -> None:
+        """Draws player control icons with an optional subtle glow."""
+        
+        # Fallback to default if glow_color is not provided
+        if glow_color is None:
+            glow_color = color 
+        
+        rgb_color = self.hex_to_rgb(color)
+        rgb_glow = self.hex_to_rgb(glow_color)
+
+        # Load icon image
+        icon_path = self.icon_paths.get(icon_type)
+        if icon_path and os.path.exists(icon_path):
+            try:
+                icon_img = Image.open(icon_path).convert("RGBA")
+                icon_img = icon_img.resize((size, size), Image.Resampling.LANCZOS)
+                
+                # Apply color tint if the icon is grayscale/white
+                # Create a solid color image and use it as a mask
+                color_layer = Image.new("RGBA", icon_img.size, (*rgb_color, 255))
+                icon_img = Image.alpha_composite(Image.new("RGBA", icon_img.size, (0,0,0,0)), Image.composite(color_layer, icon_img, icon_img))
+                
+                # Create a separate glow layer for the icon
+                icon_glow_layer = Image.new("RGBA", icon_img.size, (0,0,0,0))
+                draw_icon_glow = ImageDraw.Draw(icon_glow_layer)
+                
+                # Draw a slightly larger, blurred version of the icon in glow color
+                # This is a simplified way; more accurate would be to use the icon's alpha channel
+                draw_icon_glow.ellipse([(0,0), (size,size)], fill=(*rgb_glow, 100)) # Placeholder glow shape
+                
+                # Paste the glow onto the icon_img (or draw directly on main canvas for more control)
+                # For simplicity here, we'll draw directly on the main canvas
+                
+                return icon_img # Return the image to be composited
+            except Exception as e:
+                print(f"Could not load/process icon {icon_type}: {e}")
+                # Fallback to drawing basic shapes if image fails
+        
+        # Fallback shapes if icon image is not found or fails to load
+        # Draw a circle as the button background
+        draw.ellipse([(x - size // 2, y - size // 2), (x + size // 2, y + size // 2)], fill=(*rgb_color, 150))
+        
+        # Draw the symbol directly
+        if icon_type == "play":
+            points = [(x - size // 4, y - size // 3), (x - size // 4, y + size // 3), (x + size // 3, y)]
+            draw.polygon(points, fill=color)
+        elif icon_type == "pause":
+            draw.rectangle([(x - size // 4, y - size // 3), (x - size // 10, y + size // 3)], fill=color)
+            draw.rectangle([(x + size // 10, y - size // 3), (x + size // 4, y + size // 3)], fill=color)
+        elif icon_type == "next":
+            draw.polygon([(x + size // 10, y - size // 3), (x + size // 10, y + size // 3), (x + size // 3, y)], fill=color)
+            draw.rectangle([(x + size // 4, y - size // 3), (x + size // 2, y + size // 3)], fill=color)
+        elif icon_type == "previous":
+            draw.polygon([(x - size // 10, y - size // 3), (x - size // 10, y + size // 3), (x - size // 3, y)], fill=color)
+            draw.rectangle([(x - size // 4, y - size // 3), (x - size // 2, y + size // 3)], fill=color)
+        elif icon_type == "shuffle":
+            # Simplified shuffle icon
+            draw.line([(x - size // 3, y - size // 6), (x + size // 3, y + size // 6)], fill=color, width=2)
+            draw.line([(x - size // 3, y + size // 6), (x + size // 3, y - size // 6)], fill=color, width=2)
+        elif icon_type == "repeat":
+             draw.arc([(x - size // 3, y - size // 3), (x + size // 3, y + size // 3)], 0, 270, fill=color, width=2)
+        elif icon_type == "youtube":
+            # Simple YouTube play button style
+            draw.rounded_rectangle([(x - size//2 + 5, y - size//4), (x + size//2 - 5, y + size//4)], radius=5, fill="red")
+            draw.polygon([(x - size//4, y - size//6), (x - size//4, y + size//6), (x + size//6, y)], fill="white")
+
 
 def changeImageSize(maxWidth: int, maxHeight: int, image: Image.Image) -> Image.Image:
     """Resize image maintaining aspect ratio with ultra-high quality"""
@@ -484,26 +527,39 @@ def clear(text: str, max_length: int = 45) -> str:
 
 
 async def get_thumb(videoid: str) -> str:
-    """Generate ultra-premium advanced thumbnail"""
+    """Generate ultra-premium advanced thumbnail with Now Playing card"""
     cache_path = f"cache/{videoid}.png"
     
     if os.path.isfile(cache_path):
         return cache_path
 
     generator = UltraPremiumThumbnailGenerator()
-    url = f"https://www.youtube.com/watch?v={videoid}"
     
+    # Use a dummy video data for testing if no actual video is found
+    # In a real scenario, you'd want to handle the case where video_data is None
+    video_data = {
+        "title": "Guzarish Ghajini Aamir Khan Asin",
+        "duration": "5:07",
+        "thumbnails": [{"url": "https://i.ytimg.com/vi/lG5y7rG9L3Y/hqdefault.jpg"}],
+        "viewCount": {"short": "113M views"},
+        "channel": {"name": "T-Series"},
+    }
+
+    url = f"https://www.youtube.com/watch?v={videoid}"
     try:
-        # Get video information
-        results = VideosSearch(url, limit=1)
-        video_data = (await results.next())["result"][0]
-        
+        results = VideosSearch(videoid, limit=1) # Use videoid directly for search
+        search_result = (await results.next())["result"]
+        if search_result:
+            video_data = search_result[0] # Overwrite with actual data if found
+        else:
+            print(f"Warning: No video data found for videoid {videoid}, using dummy data.")
+
         title = video_data.get("title", "Unknown Title")
         title = re.sub(r'[^\w\s\-]', ' ', title).title()
         
-        duration = video_data.get("duration", "Unknown")
+        duration = video_data.get("duration", "0:00")
         thumbnail_url = video_data.get("thumbnails", [{}])[0].get("url", "").split("?")[0]
-        views = video_data.get("viewCount", {}).get("short", "Unknown Views")
+        views = video_data.get("viewCount", {}).get("short", "0 views")
         channel = video_data.get("channel", {}).get("name", "Unknown Channel")
         
         # Download original thumbnail
@@ -513,379 +569,207 @@ async def get_thumb(videoid: str) -> str:
                 if resp.status == 200:
                     async with aiofiles.open(temp_thumb, mode="wb") as f:
                         await f.write(await resp.read())
+                else:
+                    print(f"Error downloading thumbnail: {resp.status}")
+                    # Fallback to a default image if download fails
+                    youtube_thumb = Image.open(YOUTUBE_IMG_URL)
         
-        # Create ultra-high quality canvas
+        # Create ultra-high quality canvas (base background)
         canvas = Image.new('RGBA', (1280, 720), (0, 0, 0, 255))
         
-        # Load and process original thumbnail
-        youtube_thumb = Image.open(temp_thumb)
+        # Load and process original thumbnail for the main background (behind the card)
+        try:
+            youtube_thumb_bg = Image.open(temp_thumb).convert("RGBA")
+        except:
+            youtube_thumb_bg = Image.open(YOUTUBE_IMG_URL).convert("RGBA") # Fallback
         
-        # Select random gradient style
+        # Resize to fit background and apply blur/darken
+        youtube_thumb_bg = changeImageSize(1280, 720, youtube_thumb_bg)
+        youtube_thumb_bg = ImageEnhance.Brightness(youtube_thumb_bg).enhance(0.5) # Darken
+        youtube_thumb_bg = ImageEnhance.Contrast(youtube_thumb_bg).enhance(1.2) # Enhance contrast
+        youtube_thumb_bg = youtube_thumb_bg.filter(ImageFilter.GaussianBlur(30)) # Blur heavily
+        canvas.paste(youtube_thumb_bg, (0,0), youtube_thumb_bg)
+        
+        # Select random gradient style for subtle overlay
         gradient_colors = random.choice(generator.gradient_colors)
-        gradient_type = random.choice(["holographic", "spiral", "wave", "diamond"])
-        
-        # Create premium background
-        gradient_bg = generator.create_advanced_gradient(
-            1280, 720, gradient_colors, gradient_type
+        gradient_bg_overlay = generator.create_advanced_gradient(
+            1280, 720, gradient_colors, random.choice(["diagonal", "holographic"])
         )
-        
-        # Advanced thumbnail processing
-        thumb_resized = changeImageSize(1280, 720, youtube_thumb)
-        
-        # Apply premium image effects
-        thumb_enhanced = ImageEnhance.Brightness(thumb_resized).enhance(0.6)
-        thumb_enhanced = ImageEnhance.Contrast(thumb_enhanced).enhance(1.4)
-        thumb_enhanced = ImageEnhance.Color(thumb_enhanced).enhance(1.3)
-        
-        # Create artistic blend
-        blended = Image.blend(gradient_bg.convert('RGB'), thumb_enhanced, 0.7)
-        canvas = blended.convert('RGBA')
-        
-        # Add pattern overlay
-        pattern_type = random.choice(generator.pattern_styles)
-        if pattern_type == "neural":
-            neural_overlay = generator.create_neural_pattern(1280, 720, 0.4)
-            canvas = Image.alpha_composite(canvas, neural_overlay)
-        elif pattern_type == "waves":
-            wave_overlay = generator.create_wave_pattern(1280, 720, gradient_colors[0], 0.3)
-            canvas = Image.alpha_composite(canvas, wave_overlay)
-        
-        # Add floating particles
-        canvas = generator.add_particle_effects(canvas, 60)
-        
-        # Ultra-neon glow for title area
-        canvas = generator.create_neon_glow(
-            canvas, 50, 80, 1180, 250, gradient_colors[1], 2.0
-        )
+        canvas = Image.alpha_composite(canvas, Image.blend(Image.new('RGBA', (1280, 720), (0,0,0,0)), gradient_bg_overlay, 0.2)) # Subtle blend
         
         draw = ImageDraw.Draw(canvas)
         
+        # --- PLAYER CARD START ---
+        
+        card_width = 800
+        card_height = 500
+        card_x = (1280 - card_width) // 2
+        card_y = (720 - card_height) // 2
+        card_radius = 40
+        
+        # Create glassmorphism card as the main player interface
+        canvas = generator.create_glassmorphism_card(canvas, card_x, card_y, card_width, card_height, card_radius, blur_radius=40, bg_alpha=120, border_color="#FFFFFF", border_width=2)
+        
+        # --- Content inside the player card ---
+        
+        # Load original video thumbnail for inside the card
+        try:
+            player_thumb = Image.open(temp_thumb).convert("RGBA")
+        except:
+            player_thumb = Image.open(YOUTUBE_IMG_URL).convert("RGBA") # Fallback
+
+        player_thumb_width = 700
+        player_thumb_height = 300 # This will be adjusted to maintain aspect ratio
+        
+        player_thumb_resized = changeImageSize(player_thumb_width, player_thumb_height, player_thumb)
+        
+        # Calculate position for player thumb inside the card
+        player_thumb_x = card_x + (card_width - player_thumb_resized.size[0]) // 2
+        player_thumb_y = card_y + 30 # Slightly down from the top of the card
+        
+        # Round the corners of the player thumbnail
+        mask = Image.new("L", player_thumb_resized.size, 0)
+        mask_draw = ImageDraw.Draw(mask)
+        mask_draw.rounded_rectangle([(0,0), player_thumb_resized.size], radius=20, fill=255)
+        
+        player_thumb_rounded = Image.composite(player_thumb_resized, Image.new("RGBA", player_thumb_resized.size, (0,0,0,0)), mask)
+        
+        canvas.paste(player_thumb_rounded, (player_thumb_x, player_thumb_y), player_thumb_rounded)
+        
         # Load premium fonts with better fallbacks
         try:
-            app_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 45)
-            title_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 85)
-            subtitle_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 48)
-            info_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 35)
-            small_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 28)
+            app_font = ImageFont.truetype("AnonXMusic/assets/font4.ttf", 35) # Smaller for card
+            title_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 40)
+            subtitle_font = ImageFont.truetype("AnonXMusic/assets/font2.ttf", 28)
+            info_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 24)
+            small_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 20)
+            duration_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 20)
         except:
             # High-quality fallbacks
             from PIL import ImageFont
             try:
-                app_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 45)
-                title_font = ImageFont.truetype("/System/Library/Fonts/Arial Bold.ttf", 85)
-                subtitle_font = ImageFont.truetype("/System/Library/Fonts/Arial Bold.ttf", 48)
-                info_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 35)
-                small_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 28)
+                app_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 35)
+                title_font = ImageFont.truetype("/System/Library/Fonts/Arial Bold.ttf", 40)
+                subtitle_font = ImageFont.truetype("/System/Library/Fonts/Arial Bold.ttf", 28)
+                info_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 24)
+                small_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 20)
+                duration_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 20)
             except:
                 app_font = ImageFont.load_default()
                 title_font = ImageFont.load_default()
                 subtitle_font = ImageFont.load_default()
                 info_font = ImageFont.load_default()
                 small_font = ImageFont.load_default()
+                duration_font = ImageFont.load_default()
         
-        # Ultra-modern title card
-        title_card_width = 1200
-        title_card_height = 300
-        title_card_x = 40
-        title_card_y = 50
+        # Video Title (Truncated)
+        display_title = clear(title, 45) # Adjusted max_length for the card
+        title_text_x = card_x + 50
+        title_text_y = player_thumb_y + player_thumb_resized.size[1] + 20
+        draw.text((title_text_x, title_text_y), display_title, fill="#FFFFFF", font=title_font)
         
-        generator.create_modern_title_card(
-            draw, title, title_card_x, title_card_y, 
-            title_card_width, title_card_height, gradient_colors
-        )
+        # YouTube icon and views/channel
+        youtube_icon_size = 25
+        # Attempt to load YouTube icon image, otherwise draw a simple one
+        try:
+            youtube_icon_img = Image.open(generator.icon_paths["youtube"]).convert("RGBA").resize((youtube_icon_size, youtube_icon_size), Image.Resampling.LANCZOS)
+            canvas.paste(youtube_icon_img, (title_text_x, title_text_y + 50), youtube_icon_img)
+        except Exception as e:
+            print(f"Could not load YouTube icon: {e}")
+            generator.draw_player_icon(draw, "youtube", title_text_x + youtube_icon_size // 2, title_text_y + 50 + youtube_icon_size // 2, youtube_icon_size, "red")
+
+        channel_text = f"YouTube | {views}"
+        draw.text((title_text_x + youtube_icon_size + 10, title_text_y + 50 + (youtube_icon_size - small_font.getbbox(channel_text)[3]) // 2), channel_text, fill="#AAAAAA", font=small_font)
         
-        # App branding with 3D effect
-        app_name = unidecode(app.name).upper()
-        generator.create_3d_text_effect(
-            draw, app_name, 80, 80, app_font, "#FFD700", 8
-        )
+        # Progress Bar
+        progress_bar_y = title_text_y + 110
+        progress_bar_x = card_x + 50
+        progress_bar_width = card_width - 100
+        progress_bar_height = 8
         
-        # HD/Full Video badge (top right)
-        badge_texts = ["HD FULL VIDEO", "PREMIUM QUALITY", "4K VIDEO"]
-        badge_text = random.choice(badge_texts)
+        draw.rounded_rectangle([(progress_bar_x, progress_bar_y), (progress_bar_x + progress_bar_width, progress_bar_y + progress_bar_height)], 
+                               radius=4, fill=(255, 255, 255, 50)) # Background
         
-        bbox = draw.textbbox((0, 0), badge_text, font=small_font)
-        badge_width = bbox[2] - bbox[0] + 30
-        badge_height = bbox[3] - bbox[1] + 20
-        badge_x = 1280 - badge_width - 30
-        badge_y = 30
+        # Current progress (e.g., 60% done)
+        current_progress_ratio = 0.45 # Example: 45% progress
+        filled_width = int(progress_bar_width * current_progress_ratio)
         
-        # Ultra-bright badge with neon effect
-        for glow in range(10, 0, -1):
-            glow_alpha = int(150 * glow / 10)
-            glow_color = (*generator.hex_to_rgb("#00FFFF"), glow_alpha)
-            draw.rounded_rectangle(
-                [(badge_x - glow, badge_y - glow), 
-                 (badge_x + badge_width + glow, badge_y + badge_height + glow)],
-                radius=15,
-                fill=glow_color
-            )
+        draw.rounded_rectangle([(progress_bar_x, progress_bar_y), (progress_bar_x + filled_width, progress_bar_y + progress_bar_height)], 
+                               radius=4, fill="#FF0000") # Filled with red
         
-        draw.rounded_rectangle(
-            [(badge_x, badge_y), (badge_x + badge_width, badge_y + badge_height)],
-            radius=12,
-            fill=(0, 0, 0, 200),
-            outline="#00FFFF",
-            width=3
-        )
+        # Progress handle (circle)
+        handle_size = 12
+        handle_x = progress_bar_x + filled_width
+        handle_y = progress_bar_y + progress_bar_height // 2
+        draw.ellipse([(handle_x - handle_size // 2, handle_y - handle_size // 2), 
+                      (handle_x + handle_size // 2, handle_y + handle_size // 2)], 
+                     fill="#FF0000", outline="#FFFFFF", width=1)
         
-        draw.text(
-            (badge_x + 15, badge_y + 10), 
-            badge_text, 
-            fill="#00FFFF", 
-            font=small_font
-        )
+        # Current time and total duration
+        current_time_str = "0:00" # Placeholder, actual calculation needed
+        if duration and duration != "0:00":
+             duration_parts = [int(p) for p in duration.split(':')]
+             total_seconds = duration_parts[0] * 60 + duration_parts[1]
+             current_seconds = int(total_seconds * current_progress_ratio)
+             current_time_str = f"{current_seconds // 60}:{current_seconds % 60:02d}"
+
+        draw.text((progress_bar_x, progress_bar_y + progress_bar_height + 5), current_time_str, fill="#FFFFFF", font=duration_font)
+        duration_text_width = duration_font.getbbox(duration)[2] - duration_font.getbbox(duration)[0]
+        draw.text((progress_bar_x + progress_bar_width - duration_text_width, progress_bar_y + progress_bar_height + 5), duration, fill="#FFFFFF", font=duration_font)
         
-        # Main title with ultra-premium 3D effect
-        clean_title = clear(title, 30)
-        title_lines = []
-        words = clean_title.split()
-        current_line = ""
+        # Player control buttons (shuffle, prev, play/pause, next, repeat)
+        button_y = progress_bar_y + progress_bar_height + 60
+        button_size = 35
         
-        # Smart line breaking for title
-        for word in words:
-            if len(current_line + " " + word) <= 12:
-                current_line += " " + word if current_line else word
-            else:
-                if current_line:
-                    title_lines.append(current_line)
-                current_line = word
+        # Center the buttons
+        total_button_width = 5 * (button_size + 30) - 30 # 5 buttons, 30 spacing
+        start_x = card_x + (card_width - total_button_width) // 2
         
-        if current_line:
-            title_lines.append(current_line)
+        buttons_layout = ["shuffle", "previous", "play", "next", "repeat"] # "play" or "pause" dynamically
         
-        # Draw title with ultra-premium 3D effect
-        title_start_y = 150
-        
-        for i, line in enumerate(title_lines[:2]):  # Max 2 lines for readability
-            line_y = title_start_y + i * 95
+        for i, btn_type in enumerate(buttons_layout):
+            btn_x = start_x + i * (button_size + 30) + button_size // 2
             
-            # Ultra-3D effect with multiple shadows and highlights
-            generator.create_3d_text_effect(
-                draw, line, 80, line_y, title_font, "#FFFFFF", 12
-            )
-        
-        # Duration badge (bottom right corner)
-        if duration and duration != "Unknown":
-            duration_text = f"⏱ {duration}"
-            duration_bbox = draw.textbbox((0, 0), duration_text, font=info_font)
-            duration_width = duration_bbox[2] - duration_bbox[0] + 25
-            duration_height = duration_bbox[3] - duration_bbox[1] + 15
+            # Use play/pause dynamically
+            actual_btn_type = btn_type
+            if btn_type == "play":
+                actual_btn_type = random.choice(["play", "pause"]) # Randomly show play or pause
             
-            duration_x = 1280 - duration_width - 25
-            duration_y = 720 - duration_height - 25
-            
-            # Neon duration badge
-            neon_color = random.choice(generator.control_colors)
-            for glow in range(8, 0, -1):
-                glow_alpha = int(120 * glow / 8)
-                glow_rgb = generator.hex_to_rgb(neon_color)
-                draw.rounded_rectangle(
-                    [(duration_x - glow, duration_y - glow), 
-                     (duration_x + duration_width + glow, duration_y + duration_height + glow)],
-                    radius=18,
-                    fill=(*glow_rgb, glow_alpha)
-                )
-            
-            draw.rounded_rectangle(
-                [(duration_x, duration_y), (duration_x + duration_width, duration_y + duration_height)],
-                radius=15,
-                fill=(0, 0, 0, 180),
-                outline=neon_color,
-                width=3
-            )
-            
-            draw.text(
-                (duration_x + 12, duration_y + 7), 
-                duration_text, 
-                fill=neon_color, 
-                font=info_font
-            )
+            # Call draw_player_icon (which can load images or draw shapes)
+            icon_img = generator.draw_player_icon(draw, actual_btn_type, btn_x, button_y, button_size, color="#FFFFFF", glow_color="#00FFFF")
+            if icon_img:
+                # If an image was returned, composite it onto the canvas
+                canvas.paste(icon_img, (btn_x - button_size // 2, button_y - button_size // 2), icon_img)
         
-        # Channel info with modern styling (bottom left)
-        channel_y = 720 - 180
-        channel_card_width = 600
-        channel_card_height = 80
+        # --- PLAYER CARD END ---
         
-        # Channel card background
-        generator.create_modern_title_card(
-            draw, "", 40, channel_y, channel_card_width, channel_card_height, gradient_colors
-        )
+        # --- SIDE HD FULL VIDEO TEXT (Left) ---
+        hd_text = "HD FULL VIDEO"
+        try:
+            hd_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", 40)
+        except:
+            hd_font = ImageFont.load_default()
+
+        hd_text_size = draw.textbbox((0, 0), hd_text, font=hd_font)
+        hd_text_width = hd_text_size[2] - hd_text_size[0]
+        hd_text_height = hd_text_size[3] - hd_text_size[1]
         
-        # Channel text with glow
-        channel_info = f"🎵 {channel}"
-        views_info = f"👁 {views}"
+        # Position vertically centered on the left, rotated
+        hd_x = 30 # Distance from left edge
+        hd_y = (720 - hd_text_width) // 2
         
-        for glow in range(3, 0, -1):
-            glow_alpha = int(100 * glow / 3)
-            draw.text((60 + glow, channel_y + 15 + glow), channel_info, 
-                     fill=(255, 255, 255, glow_alpha), font=info_font)
+        hd_layer = Image.new('RGBA', (hd_text_width + 20, hd_text_height + 20), (0,0,0,0))
+        hd_draw = ImageDraw.Draw(hd_layer)
         
-        draw.text((60, channel_y + 15), channel_info, fill="#FFFFFF", font=info_font)
-        draw.text((60, channel_y + 50), views_info, fill="#CCCCCC", font=small_font)
+        # Apply glow/shadow to HD text
+        for d in range(5, 0, -1):
+            hd_draw.text((10 + d, 10 + d), hd_text, fill=(0, 0, 0, 100), font=hd_font)
+        hd_draw.text((10, 10), hd_text, fill="#FFFFFF", font=hd_font)
         
-        # Ultra-modern control interface
-        generator.create_advanced_control_ui(draw, 640, 720, gradient_colors)
+        hd_layer = hd_layer.rotate(90, expand=True) # Rotate 90 degrees clockwise
         
-        # Add "NOW PLAYING" indicator
-        now_playing_y = 400
-        now_playing_text = "♪ NOW PLAYING ♪"
-        
-        # Animated-style glow for "NOW PLAYING"
-        for glow in range(15, 0, -1):
-            glow_alpha = int(200 * math.sin(glow * 0.2) * 0.3)
-            glow_color = (*generator.hex_to_rgb(gradient_colors[0]), glow_alpha)
-            draw.text((640 - 150 + glow, now_playing_y + glow), now_playing_text, 
-                     fill=glow_color, font=subtitle_font)
-        
-        draw.text((640 - 150, now_playing_y), now_playing_text, fill="#FFFFFF", font=subtitle_font)
-        
-        # Add subtle scan lines for retro-futuristic effect
-        for y in range(0, 720, 4):
-            alpha = 15
-            draw.line([(0, y), (1280, y)], fill=(255, 255, 255, alpha), width=1)
-        
-        # Add corner accents
-        accent_color = random.choice(generator.control_colors)
-        accent_rgb = generator.hex_to_rgb(accent_color)
-        
-        # Top-left accent
-        for glow in range(20, 0, -1):
-            alpha = int(100 * glow / 20)
-            draw.polygon([(0, 0), (100, 0), (0, 100)], fill=(*accent_rgb, alpha))
-        
-        # Bottom-right accent  
-        for glow in range(20, 0, -1):
-            alpha = int(100 * glow / 20)
-            draw.polygon([(1280, 720), (1180, 720), (1280, 620)], fill=(*accent_rgb, alpha))
-        
-        # Equalizer visualization (left side)
-        eq_x = 50
-        eq_y = 300
-        bar_width = 8
-        bar_spacing = 12
-        max_height = 100
-        
-        for i in range(15):  # 15 equalizer bars
-            bar_x = eq_x + i * (bar_width + bar_spacing)
-            bar_height = random.randint(20, max_height)
-            
-            # Neon equalizer bars
-            bar_color = random.choice(generator.control_colors)
-            bar_rgb = generator.hex_to_rgb(bar_color)
-            
-            # Bar glow
-            for glow in range(6, 0, -1):
-                glow_alpha = int(150 * glow / 6)
-                draw.rectangle(
-                    [(bar_x - glow, eq_y + max_height - bar_height - glow), 
-                     (bar_x + bar_width + glow, eq_y + max_height + glow)],
-                    fill=(*bar_rgb, glow_alpha)
-                )
-            
-            # Main bar
-            draw.rounded_rectangle(
-                [(bar_x, eq_y + max_height - bar_height), 
-                 (bar_x + bar_width, eq_y + max_height)],
-                radius=4,
-                fill=bar_color
-            )
-            
-            # Bar highlight
-            draw.rounded_rectangle(
-                [(bar_x + 1, eq_y + max_height - bar_height + 1), 
-                 (bar_x + bar_width - 1, eq_y + max_height - 1)],
-                radius=3,
-                outline=(255, 255, 255, 100),
-                width=1
-            )
-        
-        # Add music note particles
-        music_notes = ["♪", "♫", "♬", "♩"]
-        for _ in range(20):
-            note_x = random.randint(100, 1180)
-            note_y = random.randint(100, 600)
-            note = random.choice(music_notes)
-            note_color = random.choice(generator.control_colors)
-            note_size = random.randint(20, 40)
-            
-            try:
-                note_font = ImageFont.truetype("AnonXMusic/assets/font.ttf", note_size)
-            except:
-                note_font = ImageFont.load_default()
-            
-            # Note glow
-            note_rgb = generator.hex_to_rgb(note_color)
-            for glow in range(8, 0, -1):
-                glow_alpha = int(120 * glow / 8 * 0.4)
-                draw.text((note_x + glow, note_y + glow), note, 
-                         fill=(*note_rgb, glow_alpha), font=note_font)
-            
-            draw.text((note_x, note_y), note, fill=note_color, font=note_font)
-        
-        # Premium waveform visualization (top)
-        wave_y = 20
-        wave_points = []
-        for x in range(0, 1280, 10):
-            amplitude = 30 + 20 * math.sin(x * 0.02)
-            y = wave_y + amplitude * math.sin(x * 0.01)
-            wave_points.append((x, y))
-        
-        # Draw waveform with glow
-        for i in range(len(wave_points) - 1):
-            glow_color = (*generator.hex_to_rgb(gradient_colors[0]), 100)
-            for thickness in range(8, 0, -1):
-                alpha = int(150 * thickness / 8 * 0.3)
-                draw.line([wave_points[i], wave_points[i+1]], 
-                         fill=(*generator.hex_to_rgb(gradient_colors[0]), alpha), 
-                         width=thickness)
-            
-            draw.line([wave_points[i], wave_points[i+1]], 
-                     fill=gradient_colors[0], width=3)
-        
-        # Artist/Song info panel (center-right)
-        info_panel_x = 700
-        info_panel_y = 400
-        info_panel_width = 500
-        info_panel_height = 120
-        
-        generator.create_modern_title_card(
-            draw, "", info_panel_x, info_panel_y, 
-            info_panel_width, info_panel_height, gradient_colors
-        )
-        
-        # Song title in info panel
-        song_title = clear(title, 35)
-        generator.create_3d_text_effect(
-            draw, song_title, info_panel_x + 25, info_panel_y + 25, 
-            subtitle_font, "#FFFFFF", 6
-        )
-        
-        # Channel name in info panel
-        artist_text = f"by {channel}"
-        draw.text((info_panel_x + 25, info_panel_y + 80), artist_text, 
-                 fill="#CCCCCC", font=info_font)
-        
-        # Ultra-bright status indicators
-        status_indicators = [
-            {"text": "🔥 TRENDING", "color": "#FF4500", "x": 80},
-            {"text": "⚡ LIVE", "color": "#FF0080", "x": 250}, 
-            {"text": "🎧 HD AUDIO", "color": "#00FF80", "x": 380},
-        ]
-        
-        indicator_y = 500
-        for indicator in status_indicators:
-            indicator_rgb = generator.hex_to_rgb(indicator["color"])
-            
-            # Status indicator glow
-            for glow in range(6, 0, -1):
-                glow_alpha = int(150 * glow / 6)
-                draw.text((indicator["x"] + glow, indicator_y + glow), indicator["text"], 
-                         fill=(*indicator_rgb, glow_alpha), font=small_font)
-            
-            draw.text((indicator["x"], indicator_y), indicator["text"], 
-                     fill=indicator["color"], font=small_font)
-        
+        canvas.paste(hd_layer, (hd_x, hd_y), hd_layer)
+
         # Clean up temporary files
         try:
             os.remove(temp_thumb)
@@ -912,7 +796,8 @@ async def get_thumb(videoid: str) -> str:
         # Fallback: create a basic premium thumbnail
         try:
             return await create_fallback_premium_thumb(videoid, generator)
-        except:
+        except Exception as fe:
+            print(f"Fallback thumbnail generation error: {fe}")
             return YOUTUBE_IMG_URL
 
 
@@ -1024,3 +909,4 @@ def add_premium_watermark(image: Image.Image, app_name: str, position: str = "bo
 
 # Export the main function
 __all__ = ['get_thumb', 'changeImageSize', 'clear']
+
