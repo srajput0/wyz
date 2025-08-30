@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from pytgcalls.exceptions import NoActiveGroupCall
 
 import config
+from AnonXMusic.utils.database.play_counts import increment_group_played
 from AnonXMusic import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
 from AnonXMusic.core.call import Anony
 from AnonXMusic.utils import seconds_to_min, time_to_seconds
@@ -661,3 +662,4 @@ async def slider_queries(client, CallbackQuery, _):
         return await CallbackQuery.edit_message_media(
             media=med, reply_markup=InlineKeyboardMarkup(buttons)
         )
+
