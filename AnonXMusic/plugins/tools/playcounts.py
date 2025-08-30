@@ -4,6 +4,7 @@ from pyrogram.types import Message
 from AnonXMusic import app
 from AnonXMusic.misc import SUDOERS
 from AnonXMusic.utils.database.play_counts import get_group_played, get_top_groups
+from AnonXMusic.utils.database.play_counts import increment_group_played, get_group_played, get_top_groups
 from AnonXMusic.utils.decorators.language import language
 
 @app.on_message(filters.command("check") & filters.group)
