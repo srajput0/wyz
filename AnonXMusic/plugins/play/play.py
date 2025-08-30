@@ -374,6 +374,7 @@ async def play_commnd(
             return await mystic.edit_text(err)
         await mystic.delete()
         return await play_logs(message, streamtype=streamtype)
+        await increment_group_played(chat_id)
     else:
         if plist_type:
             ran_hash = "".join(
@@ -395,6 +396,7 @@ async def play_commnd(
                 reply_markup=InlineKeyboardMarkup(buttons),
             )
             return await play_logs(message, streamtype=f"Playlist : {plist_type}")
+            await increment_group_played(chat_id)
         else:
             if slider:
                 buttons = slider_markup(
@@ -416,6 +418,7 @@ async def play_commnd(
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
                 return await play_logs(message, streamtype=f"Searched on Youtube")
+                await increment_group_played(chat_id)
             else:
                 buttons = track_markup(
                     _,
@@ -431,6 +434,7 @@ async def play_commnd(
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
                 return await play_logs(message, streamtype=f"URL Searched Inline")
+                await increment_group_played(chat_id)
 
 
 @app.on_callback_query(filters.regex("MusicStream") & ~BANNED_USERS)
@@ -662,4 +666,5 @@ async def slider_queries(client, CallbackQuery, _):
         return await CallbackQuery.edit_message_media(
             media=med, reply_markup=InlineKeyboardMarkup(buttons)
         )
+
 
