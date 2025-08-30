@@ -6,7 +6,7 @@ from typing import Dict, List, Union
 from AnonXMusic import userbot
 from AnonXMusic.core.mongo import mongodb
 
-# playcounts = mongodb.playcounts
+playcounts = mongodb.playcounts
 authdb = mongodb.adminauth
 authuserdb = mongodb.authuser
 autoenddb = mongodb.autoend
@@ -693,4 +693,5 @@ async def remove_banned_user(user_id: int):
 #     cursor = playcounts.find().sort("play_count", -1).limit(limit)
 #     top_groups = await cursor.to_list(length=limit)
 #     return top_groups
+
 
